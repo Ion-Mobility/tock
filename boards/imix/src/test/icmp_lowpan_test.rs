@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `icmp_lowpan_test.rs`: Test kernel space sending of
 //! ICMP packets over 6LoWPAN
 //!

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 #![no_std]
 
 use cortexm4::{unhandled_interrupt, CortexM4, CortexMVariant};

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Software implementation of SHA-256.
 //!
 //! Implementation is based on the Wikipedia description of the

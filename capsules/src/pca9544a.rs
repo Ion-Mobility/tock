@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! SyscallDriver for the PCA9544A I2C Selector.
 //!
 //! This chip allows for multiple I2C devices with the same addresses to

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This provides virtualized userspace access to a buzzer.
 //!
 //! Each app can have one outstanding buzz request, and buzz requests will queue

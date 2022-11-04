@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Interface for computing digests (hashes, cryptographic hashes, and
 //! HMACs) over data.
 

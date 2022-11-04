@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Capsule used for testing in-kernel port binding, sending, and receiving.
 //!
 //! This capsule takes in a src port on which to receive/send from and a dst port to send to.

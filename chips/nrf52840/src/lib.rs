@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 #![no_std]
 pub use nrf52::{
     acomp, adc, aes, ble_radio, chip, clock, constants, crt1, deferred_call_tasks, ficr, i2c,

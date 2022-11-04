@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 pub(crate) mod aes_test;
 pub(crate) mod crc_test;
 pub(crate) mod i2c_dummy;

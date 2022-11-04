@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Communications Class Device for USB
 //!
 //! This capsule allows Tock to support a serial port over USB.

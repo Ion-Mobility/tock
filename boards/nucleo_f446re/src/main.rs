@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Board file for Nucleo-F446RE development board
 //!
 //! - <https://www.st.com/en/evaluation-tools/nucleo-f446re.html>

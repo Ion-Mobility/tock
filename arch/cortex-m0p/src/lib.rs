@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Shared implementations for ARM Cortex-M0+ MCUs.
 
 #![crate_name = "cortexm0p"]

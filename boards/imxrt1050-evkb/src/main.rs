@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Reference Manual for the Imxrt-1052 development board
 //!
 //! - <https://www.nxp.com/webapp/Download?colCode=IMXRT1050RM>

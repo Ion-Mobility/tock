@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! X-MAC protocol layer for low power 802.15.4 reception, intended primarily
 //! to manage an Atmel RF233 radio.
 //!

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Data structures for passing application memory to the kernel.
 //!
 //! A Tock process can pass read-write or read-only buffers into the

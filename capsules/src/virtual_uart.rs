@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Virtualize a UART bus.
 //!
 //! This allows multiple Tock capsules to use the same UART bus. This is likely

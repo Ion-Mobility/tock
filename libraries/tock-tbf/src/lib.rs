@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock Binary Format (TBF) header parsing library.
 
 // Parsing the headers does not require any unsafe operations.

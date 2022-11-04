@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use crate::chip::E310xDefaultPeripherals;
 use crate::interrupts;
 use e310x::deferred_call_tasks::DeferredCallTask;

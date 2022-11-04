@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Provides userspace access to LEDs on a board.
 //!
 //! This allows for much more cross platform controlling of LEDs without having

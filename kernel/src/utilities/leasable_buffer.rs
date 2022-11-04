@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Defines a LeasableBuffer type which can be used to pass a section of a larger
 //! buffer but still get the entire buffer back in a callback
 //!

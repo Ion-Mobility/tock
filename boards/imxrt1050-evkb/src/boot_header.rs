@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 /// Vector which contains the FCB header
 /// This section is extracted with objcopy from the hello world
 /// example in the i.MX RT 1050 EVKB SDK examples.

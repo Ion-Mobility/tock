@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 /// Padded bootloader used to boot from flash
 ///
 /// The RP2040 chip requires a padded and signed bootloader (RP2040 Datasheet, 2.8 Bootrom Page, page 156)

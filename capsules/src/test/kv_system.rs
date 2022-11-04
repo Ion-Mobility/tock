@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Test for Tock KV System capsules.
 //!
 //! This capsule implements the tests for KV system libraries in Tock.

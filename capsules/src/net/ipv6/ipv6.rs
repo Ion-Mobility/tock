@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This file contains structs, traits, and methods associated with the IP layer
 //! of the networking stack. This includes the declaration and methods for the
 //! IP6Header, IP6Packet, and IP6Payload structs. These methods implement the

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! notice that there will be 18 tests, 6 for each,
 //! and the test output will make the debug buffer full,
 //! please go to boards/components/src/debug_writer.rs and change

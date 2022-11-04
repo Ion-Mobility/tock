@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component for APDS9960 proximity sensor.
 
 use capsules::apds9960::APDS9960;

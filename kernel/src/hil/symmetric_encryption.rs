@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Interface for symmetric-cipher encryption
 //!
 //! see boards/imix/src/aes_test.rs for example usage

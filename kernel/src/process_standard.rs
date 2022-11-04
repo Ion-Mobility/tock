@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock default Process implementation.
 //!
 //! `ProcessStandard` is an implementation for a userspace process running on

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Process-related policies in the Tock kernel.
 //!
 //! This file contains definitions and implementations of policies the Tock

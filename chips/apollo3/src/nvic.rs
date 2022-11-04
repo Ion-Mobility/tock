@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Named constants for NVIC ids shared across the Apollo3 family of chips
 
 pub const BROWNOUT: u32 = 0;

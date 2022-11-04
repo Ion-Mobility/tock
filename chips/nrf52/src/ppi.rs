@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Programmable peripheral interconnect, nRF52
 //!
 //! Chapter 20 of the nRF52832 Objective Product Specification v0.6.3:

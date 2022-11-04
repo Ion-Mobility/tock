@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 pub use nrf52::gpio::{GPIOPin, Pin, Port};
 
 pub const NUM_PINS: usize = 48;

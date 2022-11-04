@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implementation of the SAM4L flash controller.
 //!
 //! This implementation of the flash controller for the SAM4L uses interrupts to

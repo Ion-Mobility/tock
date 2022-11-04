@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Board file for LowRISC OpenTitan RISC-V development platform.
 //!
 //! - <https://opentitan.org/>

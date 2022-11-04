@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Components for the ISL29035 sensor.
 //!
 //! This provides two Components, Isl29035Component, which provides

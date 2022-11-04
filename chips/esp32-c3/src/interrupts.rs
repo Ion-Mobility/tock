@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Named interrupts for the ESP32-C3 chip.
 //! This matches what the HAL uses
 

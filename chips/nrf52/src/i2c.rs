@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implementation of I2C for nRF52 using EasyDMA.
 //!
 //! This module supports nRF52's two I2C master (`TWI`) peripherals,

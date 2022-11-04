@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Capsule for analog sensors.
 //!
 //! This capsule provides the sensor HIL interfaces for sensors which only need

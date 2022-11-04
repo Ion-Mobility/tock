@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Provides a struct that enables access to the unique 120 bit serial number stored in read-only
 //! flash on the sam4l.
 

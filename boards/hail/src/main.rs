@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Board file for Hail development platform.
 //!
 //! - <https://github.com/tock/tock/tree/master/boards/hail>

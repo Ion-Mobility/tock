@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use rexpect::errors::Error;
 use rexpect::process::signal::Signal;
 use rexpect::session::PtySession;

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Shared userland driver for light sensors.
 //!
 //! You need a device that provides the `hil::sensors::AmbientLight` trait.

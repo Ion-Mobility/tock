@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Library of randomness structures, including a system call driver for
 //! userspace applications to request randomness, entropy conversion, entropy
 //! to randomness conversion, and synchronous random number generation.

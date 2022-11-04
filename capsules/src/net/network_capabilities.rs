@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Capabilities for specifying capsule access to network resources
 //!
 //! A network capability specifies (1) with what IP addresses the holder of the

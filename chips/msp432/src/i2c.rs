@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use crate::usci::{self, UsciBRegisters};
 use core::cell::Cell;
 use kernel::hil::i2c::{self, Error};

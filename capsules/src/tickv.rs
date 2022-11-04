@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock TicKV capsule.
 //!
 //! This capsule implements the TicKV library in Tock. This is done

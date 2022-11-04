@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! LiteX LiteEth peripheral
 //!
 //! The hardware source and any documentation can be found in the

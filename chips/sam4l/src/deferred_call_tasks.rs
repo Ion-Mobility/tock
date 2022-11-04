@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Definition of Deferred Call tasks.
 //!
 //! Deferred calls allow peripheral drivers to register pseudo interrupts.

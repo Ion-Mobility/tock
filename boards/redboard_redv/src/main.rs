@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Board file for SparkFun RedBoard Red-V development platform.
 //!
 //! - <https://www.sparkfun.com/products/15594>

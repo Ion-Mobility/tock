@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! TRNG driver, nRF5X-family
 //!
 //! The TRNG generates 1 byte randomness at the time value in the interval

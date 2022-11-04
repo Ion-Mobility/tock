@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! A SPI test which read/writes and expects MOSI to
 //! be loopbacked to MISO. It checks that what it writes
 //! is what it reads. The values put in the buffer are

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Utility functions used in the 6LoWPAN implementation
 
 /// Verifies that a prefix given in the form of a byte array slice is valid with

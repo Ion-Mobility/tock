@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component for a multi-level feedback queue scheduler.
 //!
 //! This provides one Component, MLFQComponent.

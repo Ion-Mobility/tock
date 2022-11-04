@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock Key-Value store capsule.
 //!
 //! This capsule provides a virtualized Key-Value store interface based on an

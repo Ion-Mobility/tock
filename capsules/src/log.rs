@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implements a log storage abstraction for storing persistent data in flash.
 //!
 //! Data entries can be appended to the end of a log and read back in-order. Logs may be linear

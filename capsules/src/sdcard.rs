@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Provides driver for accessing an SD Card and a userspace Driver.
 //!
 //! This allows initialization and block reads or writes on top of SPI.

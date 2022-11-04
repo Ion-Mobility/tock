@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! SyscallDriver for the Microchip MCP230xx I2C GPIO extenders.
 //!
 //! - <https://www.microchip.com/wwwproducts/en/MCP23008>

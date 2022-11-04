@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock syscall driver capsule for Alarms, which issue callbacks when
 //! a point in time has been reached.
 

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component for communicating with the nRF51822 (BLE).
 //!
 //! This provides one Component, Nrf51822Component, which implements

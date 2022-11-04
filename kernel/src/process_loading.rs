@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Reading process binaries and loading them into in-memory Tock processes.
 //!
 //! The process loader is responsible for parsing the binary formats of Tock processes,

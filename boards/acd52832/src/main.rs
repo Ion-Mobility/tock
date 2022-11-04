@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock kernel for the Aconno ACD52832 board based on the Nordic nRF52832 MCU.
 
 #![no_std]

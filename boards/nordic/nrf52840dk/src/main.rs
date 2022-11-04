@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock kernel for the Nordic Semiconductor nRF52840 development kit (DK).
 //!
 //! It is based on nRF52840 SoC (Cortex M4 core with a BLE transceiver) with

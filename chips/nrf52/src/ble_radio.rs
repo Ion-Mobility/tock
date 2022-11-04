@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Radio driver, Bluetooth Low Energy, NRF52
 //!
 //! The generic radio configuration i.e., not specific to Bluetooth are functions and similar which

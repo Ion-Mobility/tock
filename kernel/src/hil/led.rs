@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Interface for LEDs that abstract away polarity and pin.
 //!
 //!  Author: Philip Levis <pal@cs.stanford.edu>

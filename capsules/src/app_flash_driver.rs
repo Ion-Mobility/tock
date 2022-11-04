@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This allows multiple apps to write their own flash region.
 //!
 //! All write requests from userland are checked to ensure that they are only

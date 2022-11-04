@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tests the log storage interface in circular mode. For testing in linear mode, see
 //! linear_log_test.rs.
 //!

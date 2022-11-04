@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use kernel::hil::uart::Transmit;
 use kernel::static_init;
 use nrf52832::uart::Uarte;

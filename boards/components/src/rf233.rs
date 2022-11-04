@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component for communicating with an RF233 chip (802.15.4) connected via SPI.
 //!
 //! This provides one Component, RF233Component, which provides basic

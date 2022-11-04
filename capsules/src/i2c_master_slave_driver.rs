@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Provides both an I2C Master and I2C Slave interface to userspace.
 //!
 //! By calling `listen` this module will wait for I2C messages

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Analog Comparator Peripheral Driver, for nrf52
 //!
 //! Partially based on sam4l implementation of an analog comparator.

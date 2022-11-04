@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! An abstraction over the pin multiplexer, nRF5X-family
 //!
 //! Controller drivers should use the `Pinmux` type (instead of a `u32`) for

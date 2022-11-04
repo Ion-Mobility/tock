@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! AES128 driver, nRF5X-family
 //!
 //! Provides a simple driverto encrypt and decrypt

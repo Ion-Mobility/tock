@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implements a text console over the UART that allows
 //! a terminal to inspect and control userspace processes.
 //!

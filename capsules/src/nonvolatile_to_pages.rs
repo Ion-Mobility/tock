@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Map arbitrary nonvolatile reads and writes to page operations.
 //!
 //! This splits non-page-aligned reads and writes into a series of page level

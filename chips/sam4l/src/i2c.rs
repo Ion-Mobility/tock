@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implementation of the SAM4L TWIMS peripheral.
 //!
 //! The implementation, especially of repeated starts, is quite sensitive to the

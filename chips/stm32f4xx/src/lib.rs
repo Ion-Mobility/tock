@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Peripheral implementations for the STM32F4xx MCU.
 //!
 //! STM32F446RE: <https://www.st.com/en/microcontrollers/stm32f4.html>

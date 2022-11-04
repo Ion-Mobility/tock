@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Virtual IEEE 802.15.4 MAC device
 //!
 //! `MuxMac` provides multiplexed access to an 802.15.4 MAC device. This enables

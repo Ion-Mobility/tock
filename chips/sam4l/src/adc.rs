@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Implementation of the SAM4L ADCIFE.
 //!
 //! This is an implementation of the SAM4L analog to digital converter. It is

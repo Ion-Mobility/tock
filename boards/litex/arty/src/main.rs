@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Board file for a LiteX-built VexRiscv-based SoC synthesized for a
 //! Digilent Arty-A7 FPGA board
 

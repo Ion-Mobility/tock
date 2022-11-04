@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Peripheral implementations for the SAM4L MCU.
 //!
 //! <http://www.atmel.com/microsite/sam4l/default.aspx>

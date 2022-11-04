@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Special restricted capabilities.
 //!
 //! Rust provides a mechanism for restricting certain operations to only be used

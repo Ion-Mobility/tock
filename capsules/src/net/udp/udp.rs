@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This file contains the structs and methods associated with the UDP header.
 //! This includes getters and setters for the various header fields, as well
 //! as the standard encode/decode functionality required for serializing

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Clock peripheral driver, nRF52
 //!
 //! Based on Phil Levis clock driver for nRF51

@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! LSM6DSOXTR Sensor
 //!
 //! Driver for the LSM6DSOXTR 3D accelerometer and 3D gyroscope sensor.

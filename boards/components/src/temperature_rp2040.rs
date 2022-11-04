@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component for the RaspberryPI 2040 built-in temperature sensor.
 
 use capsules::temperature_rp2040::TemperatureRp2040;

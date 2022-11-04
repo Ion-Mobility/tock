@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! SyscallDriver for the ST LPS25HB pressure sensor.
 //!
 //! <http://www.st.com/en/mems-and-sensors/lps25hb.html>

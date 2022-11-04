@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Test the opentitan Flash Controller
 //! Tests: read_page, write_page, erase_page
 use crate::tests::run_kernel_op;

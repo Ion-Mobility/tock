@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 pub mod ip_utils;
 pub mod ipv6_recv;
 pub mod ipv6_send;

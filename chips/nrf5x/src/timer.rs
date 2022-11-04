@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Timer driver, nRF5X-family
 //!
 //! The nRF51822 timer system operates off of the high frequency clock

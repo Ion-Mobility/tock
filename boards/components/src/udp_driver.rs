@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Component to initialize the userland UDP driver.
 //!
 //! This provides one Component, UDPDriverComponent. This component initializes

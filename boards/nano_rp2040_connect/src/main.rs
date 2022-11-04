@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Tock kernel for the Arduino Nano RP2040 Connect.
 //!
 //! It is based on RP2040SoC SoC (Cortex M0+).

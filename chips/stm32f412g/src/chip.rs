@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use crate::interrupt::Stm32f412gInterruptService;
 use stm32f4xx::chip::Stm32f4xx;
 

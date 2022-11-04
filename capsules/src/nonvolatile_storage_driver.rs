@@ -1,3 +1,6 @@
+// Licensed under the Apache License, Version 2.0 or the MIT License.
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! This provides kernel and userspace access to nonvolatile memory.
 //!
 //! This is an initial implementation that does not provide safety for
