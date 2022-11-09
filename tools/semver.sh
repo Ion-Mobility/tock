@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # Semantic version comparison. This function compares two
 # strings of the form X{.Y}* and returns which is larger or

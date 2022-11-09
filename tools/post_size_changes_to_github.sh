@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # Post commit statuses to github indicating how a PR affects flash and RAM use for different boards.
 # This script is run by Travis after successful PR builds. It reports resource differences between

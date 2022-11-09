@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # Install clippy if it is not already preset.
 if ! rustup component list | grep 'clippy.*(installed)' -q; then

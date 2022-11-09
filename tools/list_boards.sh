@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # Find boards based on folders with Makefiles
 for b in $(find boards -maxdepth 4 | egrep 'Makefile$'); do

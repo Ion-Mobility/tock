@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Runs rustfmt on all subdirectories with a Cargo.toml file. Must be run from
 # root Tock directory. Protects user from inadvertently overwriting files.

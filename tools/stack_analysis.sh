@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # This script requires that the .elf under analysis includes stack
 # size information, and is thus most easily called using the `make stack-analysis`

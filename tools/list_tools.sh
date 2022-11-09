@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 
 # Find tools built in rust based on folders with Cargo.toml
 for b in $(find tools -maxdepth 4 -name 'Cargo.toml'); do
