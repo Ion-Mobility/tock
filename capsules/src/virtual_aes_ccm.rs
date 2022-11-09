@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! Implements and virtualizes AES-CCM* encryption/decryption/authentication using an underlying
 //! AES-CBC and AES-CTR implementation.

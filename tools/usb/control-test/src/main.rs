@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! This utility performs a simple test of usb functionality in Tock:
 //! It reads control data from a connected device and writes control

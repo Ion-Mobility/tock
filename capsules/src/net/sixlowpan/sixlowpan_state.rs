@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! 6loWPAN (IPv6 over Low-Power Wireless Networks) is standard for compressing
 //! and fragmenting IPv6 packets over low power wireless networks, particularly

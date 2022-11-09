@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! This file contains the types, structs and methods associated with the
 //! ICMPv6 header, including getter and setter methods and encode/decode

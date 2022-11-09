@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! SyscallDriver for the AMS CCS811 an ultra-low power digital gas sensor
 //! solution which integrates a metal oxide (MOX) gas sensor to detect a wide

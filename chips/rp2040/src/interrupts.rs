@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 pub const TIMER_IRQ_0: u32 = 0;
 pub const TIMER_IRQ_1: u32 = 1;

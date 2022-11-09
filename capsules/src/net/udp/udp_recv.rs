@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! This file contains the definition and implementation for the UDP reception
 //! interface. It follows the same virtualization model as that described in `udp_send.rs`,

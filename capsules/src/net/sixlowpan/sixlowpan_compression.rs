@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 use crate::net::ieee802154::MacAddress;
 use crate::net::ipv6::ip_utils::{compute_udp_checksum, ip6_nh, IPAddr};

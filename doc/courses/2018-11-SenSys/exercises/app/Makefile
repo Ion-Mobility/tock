@@ -1,3 +1,6 @@
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
 # Makefile for user application
 
 # Specify this directory relative to the current application.

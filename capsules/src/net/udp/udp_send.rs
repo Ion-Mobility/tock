@@ -1,5 +1,5 @@
 // Licensed under the Apache License, Version 2.0 or the MIT License.
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 //! This file contains the definition and implementation for a virtualized UDP
 //! sending interface. The [UDPSender](trait.UDPSender.html) trait provides

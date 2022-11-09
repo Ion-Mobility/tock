@@ -1,3 +1,6 @@
+# Licensed under the Apache License, Version 2.0 or the MIT License.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
 # Makefile for building the tock kernel for the WeAct STM32F401CCU6 Core Board
 TARGET=thumbv7em-none-eabihf
 PLATFORM=weact-f401ccu6
