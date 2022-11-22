@@ -2,7 +2,7 @@
 //!
 //! imxrt1050 chip: <https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/i-mx-rt1050-evaluation-kit:MIMXRT1050-EVK>
 
-#![crate_name = "imxrt10xx"]
+#![crate_name = "s32k14x"]
 #![crate_type = "rlib"]
 #![no_std]
 
@@ -39,7 +39,7 @@ pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
     _estack,
     initialize_ram_jump_to_main,
     unhandled_interrupt,          // NMI
-    CortexM7::HARD_FAULT_HANDLER, // Hard Fault
+    CortexM4::HARD_FAULT_HANDLER, // Hard Fault
     unhandled_interrupt,          // MemManage
     unhandled_interrupt,          // BusFault
     unhandled_interrupt,          // UsageFault
@@ -47,11 +47,11 @@ pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
     unhandled_interrupt,
     unhandled_interrupt,
     unhandled_interrupt,
-    CortexM7::SVC_HANDLER, // SVC
+    CortexM4::SVC_HANDLER, // SVC
     unhandled_interrupt,   // DebugMon
     unhandled_interrupt,
     unhandled_interrupt,       // PendSV
-    CortexM7::SYSTICK_HANDLER, // SysTick
+    CortexM4::SYSTICK_HANDLER, // SysTick
 ];
 
 // imxrt 1050 has total of 160 interrupts
