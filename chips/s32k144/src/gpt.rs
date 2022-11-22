@@ -1,6 +1,6 @@
 use core::sync::atomic::{AtomicU32, Ordering};
-use cortexm7;
-use cortexm7::support::atomic;
+use cortexm4;
+use cortexm4::support::atomic;
 use kernel::hil;
 use kernel::hil::time::{Ticks, Ticks32, Time};
 use kernel::platform::chip::ClockInterface;
@@ -393,7 +393,7 @@ impl<'a, F: hil::time::Frequency> hil::time::Alarm<'a> for Gpt<'a, F> {
             atomic(|| {
                 // Disable counter
                 self.registers.ir.modify(IR::OF1IE::CLEAR);
-                cortexm7::nvic::Nvic::new(self.irqn).clear_pending();
+                cortexm4::nvic::Nvic::new(self.irqn).clear_pending();
             });
         }
         Ok(())

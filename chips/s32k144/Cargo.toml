@@ -1,10 +1,10 @@
 [package]
-name = "imxrt10xx"
+name = "s32k14x"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 
 [dependencies]
-cortexm7 = { path = "../../arch/cortex-m7" }
+cortexm4 = { path = "../../arch/cortex-m4" }
 enum_primitive = { path = "../../libraries/enum_primitive" }
 kernel = { path = "../../kernel" }

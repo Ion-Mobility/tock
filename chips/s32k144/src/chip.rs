@@ -1,29 +1,29 @@
 //! Chip trait setup.
 
 use core::fmt::Write;
-use cortexm7::{self, CortexM7, CortexMVariant};
+use cortexm4::{self, CortexM4, CortexMVariant};
 use kernel::debug;
 use kernel::platform::chip::{Chip, InterruptService};
 
 use crate::nvic;
 
-pub struct Imxrt10xx<I: InterruptService<()> + 'static> {
-    mpu: cortexm7::mpu::MPU,
-    userspace_kernel_boundary: cortexm7::syscall::SysCall,
+pub struct S32k14x<I: InterruptService<()> + 'static> {
+    mpu: cortexm4::mpu::MPU,
+    userspace_kernel_boundary: cortexm4::syscall::SysCall,
     interrupt_service: &'static I,
 }
 
-impl<I: InterruptService<()> + 'static> Imxrt10xx<I> {
+impl<I: InterruptService<()> + 'static> S32k14x<I> {
     pub unsafe fn new(interrupt_service: &'static I) -> Self {
-        Imxrt10xx {
-            mpu: cortexm7::mpu::MPU::new(),
-            userspace_kernel_boundary: cortexm7::syscall::SysCall::new(),
+        S32k14x {
+            mpu: cortexm4::mpu::MPU::new(),
+            userspace_kernel_boundary: cortexm4::syscall::SysCall::new(),
             interrupt_service,
         }
     }
 }
 
-pub struct Imxrt10xxDefaultPeripherals {
+pub struct S32k14xDefaultPeripherals {
     pub iomuxc: crate::iomuxc::Iomuxc,
     pub iomuxc_snvs: crate::iomuxc_snvs::IomuxcSnvs,
     pub ccm: &'static crate::ccm::Ccm,
@@ -38,7 +38,7 @@ pub struct Imxrt10xxDefaultPeripherals {
     pub gpt2: crate::gpt::Gpt2<'static>,
 }
 
-impl Imxrt10xxDefaultPeripherals {
+impl S32k14xDefaultPeripherals {
     pub fn new(ccm: &'static crate::ccm::Ccm) -> Self {
         Self {
             iomuxc: crate::iomuxc::Iomuxc::new(),
@@ -57,7 +57,7 @@ impl Imxrt10xxDefaultPeripherals {
     }
 }
 
-impl InterruptService<()> for Imxrt10xxDefaultPeripherals {
+impl InterruptService<()> for S32k14xDefaultPeripherals {
     unsafe fn service_interrupt(&self, interrupt: u32) -> bool {
         match interrupt {
             nvic::LPUART1 => self.lpuart1.handle_interrupt(),
@@ -102,17 +102,17 @@ impl InterruptService<()> for Imxrt10xxDefaultPeripherals {
     }
 }
 
-impl<I: InterruptService<()> + 'static> Chip for Imxrt10xx<I> {
-    type MPU = cortexm7::mpu::MPU;
-    type UserspaceKernelBoundary = cortexm7::syscall::SysCall;
+impl<I: InterruptService<()> + 'static> Chip for S32k14x<I> {
+    type MPU = cortexm4::mpu::MPU;
+    type UserspaceKernelBoundary = cortexm4::syscall::SysCall;
 
     fn service_pending_interrupts(&self) {
         unsafe {
             loop {
-                if let Some(interrupt) = cortexm7::nvic::next_pending() {
+                if let Some(interrupt) = cortexm4::nvic::next_pending() {
                     let handled = self.interrupt_service.service_interrupt(interrupt);
                     assert!(handled, "Unhandled interrupt number {}", interrupt);
-                    let n = cortexm7::nvic::Nvic::new(interrupt);
+                    let n = cortexm4::nvic::Nvic::new(interrupt);
                     n.clear_pending();
                     n.enable();
                 } else {
@@ -123,21 +123,21 @@ impl<I: InterruptService<()> + 'static> Chip for Imxrt10xx<I> {
     }
 
     fn has_pending_interrupts(&self) -> bool {
-        unsafe { cortexm7::nvic::has_pending() }
+        unsafe { cortexm4::nvic::has_pending() }
     }
 
-    fn mpu(&self) -> &cortexm7::mpu::MPU {
+    fn mpu(&self) -> &cortexm4::mpu::MPU {
         &self.mpu
     }
 
-    fn userspace_kernel_boundary(&self) -> &cortexm7::syscall::SysCall {
+    fn userspace_kernel_boundary(&self) -> &cortexm4::syscall::SysCall {
         &self.userspace_kernel_boundary
     }
 
     fn sleep(&self) {
         unsafe {
-            cortexm7::scb::unset_sleepdeep();
-            cortexm7::support::wfi();
+            cortexm4::scb::unset_sleepdeep();
+            cortexm4::support::wfi();
         }
     }
 
@@ -145,10 +145,10 @@ impl<I: InterruptService<()> + 'static> Chip for Imxrt10xx<I> {
     where
         F: FnOnce() -> R,
     {
-        cortexm7::support::atomic(f)
+        cortexm4::support::atomic(f)
     }
 
     unsafe fn print_state(&self, write: &mut dyn Write) {
-        CortexM7::print_cortexm_state(write);
+        CortexM4::print_cortexm_state(write);
     }
 }
