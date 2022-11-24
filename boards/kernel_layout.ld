@@ -65,6 +65,16 @@ SECTIONS
          _estack = .;
     } > ram
 
+    .interrupt :
+    {
+      KEEP(*(.vectors .vectors.*))
+      KEEP(*(.irqs))
+    } > ivt
+
+    .flash_config :
+    {
+      KEEP(*(.FlashConfig .FlashConfig.*))
+    } > fcf
 
     /* STATIC ELEMENTS FOR TOCK KERNEL */
     .text :
@@ -81,8 +91,8 @@ SECTIONS
          *
          * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/BABIFJFG.html
          */
-        KEEP(*(.vectors .vectors.*))
-        KEEP(*(.irqs))
+        
+        
 
         /* RISC-V
          * There is no vector table in RISCV, so .vectors and .irqs will be

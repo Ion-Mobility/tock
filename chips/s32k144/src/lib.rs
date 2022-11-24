@@ -231,3 +231,15 @@ pub unsafe fn init() {
 
     cortexm4::nvic::enable_all();
 }
+#[cfg_attr(
+    all(target_arch = "arm", target_os = "none"),
+    link_section = ".FlashConfig"
+)]
+// used Ensures that the symbol is kept until the final binary
+#[cfg_attr(all(target_arch = "arm", target_os = "none"), used)]
+pub static BASE_VECTORS: [unsafe extern "C" data(); 4] = [
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFFFFFF,
+    0xFFFF7FFE, // Unsecured
+];
