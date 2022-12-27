@@ -1,5 +1,5 @@
 [package]
-name = "weact-f401ccu6"
+name = "s32k144_evb"
 version.workspace = true
 authors.workspace = true
 build = "build.rs"
@@ -10,4 +10,4 @@ components = { path = "../components" }
 cortexm4 = { path = "../../arch/cortex-m4" }
 capsules = { path = "../../capsules" }
 kernel = { path = "../../kernel" }
-stm32f401cc = { path = "../../chips/stm32f401cc" }
+s32k14x = { path = "../../chips/s32k144" }
