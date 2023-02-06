@@ -28,6 +28,20 @@
             "configFiles": [
                 "${workspaceRoot}/boards/msp_exp432p401r/openocd.cfg",
             ]
+        },
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "Debug J-Link",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/target/thumbv7em-none-eabi/debug/s32k144evaluationkit",
+            "servertype": "jlink",
+            "device": "S32K144",
+            "interface": "jtag",
+            "serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
+            // "jlinkscript": "${workspaceRoot}/BSP/SEGGER/K66FN2M0_emPower/Setup/Kinetis_K66_Target.js",
+            "runToMain": false,
+            "svdFile": "${workspaceRoot}/S32K144.svd",
         }
     ]
 }

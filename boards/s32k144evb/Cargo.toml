@@ -1,0 +1,14 @@
+[package]
+name = "s32k144evaluationkit"
+version.workspace = true
+authors.workspace = true
+build = "build.rs"
+edition = "2018"
+
+[dependencies]
+components = { path = "../components" }
+cortexm4 = { path = "../../arch/cortex-m4" }
+capsules = { path = "../../capsules" }
+kernel = { path = "../../kernel" }
+s32k14x = { path = "../../chips/s32k14x" }
+cortex-m-rt = "0.6.7"
