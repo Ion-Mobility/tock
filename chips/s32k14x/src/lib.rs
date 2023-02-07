@@ -45,6 +45,14 @@ pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
     CortexM4::SYSTICK_HANDLER, // SysTick
 ];
 
+#[cfg_attr(
+    all(target_arch = "arm", target_os = "none"),
+    link_section = ".vectors"
+)]
+// used Ensures that the symbol is kept until the final binary
+#[cfg_attr(all(target_arch = "arm", target_os = "none"), used)]
+pub static IRQS: [unsafe extern "C" fn(); 80] = [CortexM4::GENERIC_ISR; 80];
+
 pub unsafe fn init() {
     cortexm4::nvic::disable_all();
     cortexm4::nvic::clear_all_pending();

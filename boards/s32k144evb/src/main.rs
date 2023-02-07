@@ -119,9 +119,7 @@ struct S32K144EvalueationKit {
 /// This is called after RAM initialization is complete.
 #[no_mangle]
 pub unsafe fn main() {
-    loop{};
     s32k14x::init();
-    loop{};
     let board_kernel = static_init!(kernel::Kernel, kernel::Kernel::new(&PROCESSES));
 
     let dynamic_deferred_call_clients =
