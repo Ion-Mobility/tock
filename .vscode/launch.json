@@ -41,7 +41,7 @@
             "serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
             // "jlinkscript": "${workspaceRoot}/BSP/SEGGER/K66FN2M0_emPower/Setup/Kinetis_K66_Target.js",
             "runToMain": false,
-            "svdFile": "${workspaceRoot}/S32K144.svd",
+            "svdFile": "${workspaceRoot}/boards/s32k144evb/S32K144.svd",
         }
     ]
 }
