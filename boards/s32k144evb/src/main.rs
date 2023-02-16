@@ -44,6 +44,58 @@ const FAULT_RESPONSE: kernel::process::PanicFaultPolicy = kernel::process::Panic
 #[link_section = ".stack_buffer"]
 pub static mut STACK_MEMORY: [u8; 0x2000] = [0; 0x2000];
 
+/// Supported drivers by the platform
+pub struct Platform {
+    ipc: kernel::ipc::IPC<{ NUM_PROCS as u8 }>,
+    scheduler: &'static RoundRobinSched<'static>,
+    systick: cortexm4::systick::SysTick,
+}
+
+impl SyscallDriverLookup for Platform {
+    fn with_driver<F, R>(&self, driver_num: usize, f: F) -> R
+    where
+        F: FnOnce(Option<&dyn kernel::syscall::SyscallDriver>) -> R,
+    {
+        match driver_num {
+            kernel::ipc::DRIVER_NUM => f(Some(&self.ipc)),
+            _ => f(None),
+        }
+    }
+}
+// impl KernelResources<nrf52832::chip::NRF52<'static, Nrf52832DefaultPeripherals<'static>>>
+//     for Platform
+// {
+//     type SyscallDriverLookup = Self;
+//     type SyscallFilter = ();
+//     type ProcessFault = ();
+//     type CredentialsCheckingPolicy = ();
+//     type Scheduler = RoundRobinSched<'static>;
+//     type SchedulerTimer = cortexm4::systick::SysTick;
+//     type WatchDog = ();
+//     type ContextSwitchCallback = ();
+
+//     fn syscall_driver_lookup(&self) -> &Self::SyscallDriverLookup {
+//         &self
+//     }
+//     fn syscall_filter(&self) -> &Self::SyscallFilter {
+//         &()
+//     }
+//     fn process_fault(&self) -> &Self::ProcessFault {
+//         &()
+//     }
+//     fn credentials_checking_policy(&self) -> &'static Self::CredentialsCheckingPolicy {
+//         &()
+//     }
+//     fn scheduler(&self) -> &Self::Scheduler {
+//         self.scheduler
+//     }
+//     fn scheduler_timer(&self) -> &Self::SchedulerTimer {
+//         &self.systick
+//     }
+//     fn context_switch_callback(&self) -> &Self::ContextSwitchCallback {
+//         &()
+//     }
+// }
 /// A structure representing this platform that holds references to all
 /// capsules for this platform.
 struct S32K144EvalueationKit {

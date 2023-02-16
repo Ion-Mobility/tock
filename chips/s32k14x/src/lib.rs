@@ -11,6 +11,7 @@ pub mod chip;
 
 // Peripherals
 pub mod deferred_calls;
+pub mod gpio;
 
 use cortexm4::{initialize_ram_jump_to_main, unhandled_interrupt, CortexM4, CortexMVariant};
 
