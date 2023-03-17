@@ -40,7 +40,7 @@ use core::cell::Cell;
 use core::mem;
 use core::ops::Index;
 
-use crate::ccm;
+use crate::pcc;
 
 /** DMA - Size of Registers Arrays */
 pub const DMA_DCHPRI_COUNT: usize = 16;
@@ -211,53 +211,50 @@ impl Index<usize> for ChannelPriorityRegisters {
     }
 }
 
-registers::register_structs! {
-    /// DMA registers.
-    DmaRegisters {
-        /// Control Register
-        (0x000 => cr: ReadWrite<u32, Control::Register>),
-        /// Error Status Register
-        (0x004 => es: ReadOnly<u32, ErrorStatus::Register>),
-        (0x008 => _reserved0),
-        /// Enable Request Register
-        (0x00C => erq: ReadWrite<u32>),
-        (0x010 => _reserved1),
-        /// Enable Error Interrupt Register
-        (0x014 => eei: ReadWrite<u32>),
-        /// Clear Enable Error Interrupt Register
-        (0x018 => ceei: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Set Enable Error Interrupt Register
-        (0x019 => seei: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Clear Enable Request Register
-        (0x01A => cerq: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Set Enable Request Register
-        (0x01B => serq: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Clear DONE Status Bit Register
-        (0x01C => cdne: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Set START Bit Register
-        (0x01D => ssrt: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Clear Error Register
-        (0x01E => cerr: WriteOnly<u8, MemoryMappedChannel::Register>),
-        /// Clear Interrupt Request Register
-        (0x01F => cint: WriteOnly<u8, MemoryMappedChannel::Register>),
-        (0x020 => _reserved2),
-        /// Interrupt Request Register
-        (0x024 => int: ReadWrite<u32>),
-        (0x028 => _reserved3),
-        /// Error Register
-        (0x02C => err: ReadWrite<u32>),
-        (0x030 => _reserved4),
-        /// Hardware Request Status Register
-        (0x034 => hrs: ReadOnly<u32>),
-        (0x038 => _reserved5),
-        /// Enable Asynchronous Request in Stop Register
-        (0x044 => ears: ReadWrite<u32>),
-        (0x048 => _reserved6),
-        (0x0100 => dchpri: ChannelPriorityRegisters),
-        (0x0120 => _reserved7),
-        (0x1000 => tcd: [TransferControlDescriptor; DMA_DCHPRI_COUNT]),
-        (0x1400 => @END),
-    }
+#[repr(C)]
+struct DmaRegisters {
+    /// Control Register
+    cr: ReadWrite<u32, Control::Register>,
+    /// Error Status Register
+    es: ReadOnly<u32, ErrorStatus::Register>,
+    _reserved0: [u8; 4],
+    /// Enable Request Register
+    erq: ReadWrite<u32>,
+    _reserved1: [u8; 4],
+    /// Enable Error Interrupt Register
+    eei: ReadWrite<u32>,
+    /// Clear Enable Error Interrupt Register
+    ceei: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Set Enable Error Interrupt Register
+    seei: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Clear Enable Request Register
+    cerq: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Set Enable Request Register
+    serq: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Clear DONE Status Bit Register
+    cdne: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Set START Bit Register
+    ssrt: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Clear Error Register
+    cerr: WriteOnly<u8, MemoryMappedChannel::Register>,
+    /// Clear Interrupt Request Register
+    cint: WriteOnly<u8, MemoryMappedChannel::Register>,
+    _reserved2: [u8; 4],
+    /// Interrupt Request Register
+    int: ReadWrite<u32>,
+    _reserved3: [u8; 4],
+    /// Error Register
+    err: ReadWrite<u32>,
+    _reserved4: [u8; 4],
+    /// Hardware Request Status Register
+    hrs: ReadOnly<u32>,
+    _reserved5: [u8; 12],
+    /// Enable Asynchronous Request in Stop Register
+    ears: ReadWrite<u32>,
+    _reserved6: [u8; 184],
+    dchpri: ChannelPriorityRegisters,
+    _reserved7: [u8; 3824],
+    tcd: [TransferControlDescriptor; DMA_DCHPRI_COUNT],
 }
 
 registers::register_bitfields![u8,
@@ -725,25 +722,25 @@ pub struct Dma<'a> {
     /// The DMA channels
     pub channels: [DmaChannel; DMA_DCHPRI_COUNT],
     /// DMA clock gate
-    clock_gate: ccm::PeripheralClock<'a>,
+    clock_gate: pcc::PeripheralClock<'a>,
     /// DMA registers.
     registers: StaticRef<DmaRegisters>,
 }
 
 impl<'a> Dma<'a> {
     /// Create a DMA peripheral.
-    pub const fn new(ccm: &'a ccm::Ccm) -> Self {
+    pub const fn new(pcc: &'a pcc::Pcc) -> Self {
         Dma {
             channels: DMA_CHANNELS,
-            clock_gate: ccm::PeripheralClock::ccgr5(ccm, ccm::HCLK5::DMA),
+            clock_gate: pcc::PeripheralClock::new(pcc::PeripheralClockType::PCC_FTFC_INDEX, pcc),
             registers: DMA_BASE,
         }
     }
 
     /// Returns the interface that controls the DMA clock
-    pub fn clock(&self) -> &(impl kernel::platform::chip::ClockInterface + '_) {
-        &self.clock_gate
-    }
+    // pub fn clock(&self) -> &(impl kernel::platform::chip::ClockInterface + '_) {
+    //     &self.clock_gate
+    // }
 
     /// Reset all DMA transfer control descriptors.
     ///
