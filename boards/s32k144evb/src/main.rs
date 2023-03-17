@@ -17,10 +17,7 @@ use kernel::hil::led::LedHigh;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, debug, static_init};
-extern crate cortex_m_rt;
-use cortex_m_rt::entry;
-
-// use s32k14x::interrupt_service::S32k14xDefaultPeripherals;
+use s32k14x::chip::S32k14xDefaultPeripherals;
 
 /// Support routines for debugging I/O.
 pub mod io;
@@ -32,8 +29,8 @@ const NUM_PROCS: usize = 4;
 static mut PROCESSES: [Option<&'static dyn kernel::process::Process>; NUM_PROCS] =
     [None, None, None, None];
 
-// static mut CHIP: Option<&'static s32k14x::chip::s32k14x<S32k14xDefaultPeripherals>> =
-//     None;
+static mut CHIP: Option<&'static s32k14x::chip::S32k14x<S32k14xDefaultPeripherals>> =
+    None;
 static mut PROCESS_PRINTER: Option<&'static kernel::process::ProcessPrinterText> = None;
 
 // How should the kernel respond when a process faults.
