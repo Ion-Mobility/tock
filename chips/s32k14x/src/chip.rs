@@ -13,35 +13,6 @@ pub struct S32k14x<'a, I: InterruptService<DeferredCallTask> + 'a> {
     interrupt_service: &'a I,
 }
 
-// pub struct S32k14xDefaultPeripherals<'a> {
-//     x: *const T,
-//     phantom: PhantomData<&'a T>
-// }
-
-// impl<'a> S32k14xDefaultPeripherals<'a> {
-//     pub fn new(
-//         // fixme: 
-//     ) -> Self {
-//         Self {
-//             // Fixme: 
-//         }
-//     }
-
-//     pub fn setup_circular_deps(&'a self) {
-//         // self.gpio_ports.setup_circular_deps();
-//     }
-// }
-
-// impl<'a> InterruptService<DeferredCallTask> for S32k14xDefaultPeripherals<'a> {
-//     unsafe fn service_interrupt(&self, interrupt: u32) -> bool {
-//         true
-//     }
-
-//     unsafe fn service_deferred_call(&self, task: DeferredCallTask) -> bool {
-//         true
-//     }
-// }
-
 impl<'a, I: InterruptService<DeferredCallTask> + 'a> S32k14x<'a, I> {
     pub unsafe fn new(interrupt_service: &'a I) -> Self {
         Self {
