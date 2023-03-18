@@ -11,6 +11,7 @@ pub mod nvic;
 pub mod pcc;
 pub mod dma;
 pub mod gpio;
+pub mod wdt;
 
 // Peripherals
 // pub mod deferred_calls;

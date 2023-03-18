@@ -13,12 +13,15 @@ use components::gpio::GpioComponent;
 use kernel::capabilities;
 use kernel::component::Component;
 use kernel::dynamic_deferred_call::{DynamicDeferredCall, DynamicDeferredCallClientState};
+use kernel::hil;
 use kernel::hil::led::LedHigh;
+use kernel::hil::led::LedLow;
+use kernel::hil::Controller;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, debug, static_init};
 use s32k14x::chip::S32k14xDefaultPeripherals;
-
+use kernel::platform::watchdog::WatchDog;
 /// Support routines for debugging I/O.
 pub mod io;
 
@@ -29,8 +32,7 @@ const NUM_PROCS: usize = 4;
 static mut PROCESSES: [Option<&'static dyn kernel::process::Process>; NUM_PROCS] =
     [None, None, None, None];
 
-static mut CHIP: Option<&'static s32k14x::chip::S32k14x<S32k14xDefaultPeripherals>> =
-    None;
+static mut CHIP: Option<&'static s32k14x::chip::S32k14x<S32k14xDefaultPeripherals>> = None;
 static mut PROCESS_PRINTER: Option<&'static kernel::process::ProcessPrinterText> = None;
 
 // How should the kernel respond when a process faults.
@@ -43,6 +45,7 @@ pub static mut STACK_MEMORY: [u8; 0x2000] = [0; 0x2000];
 
 /// Supported drivers by the platform
 pub struct Platform {
+    gpio: &'static capsules::gpio::GPIO<'static, s32k14x::gpio::GPIOPin<'static>>,
     ipc: kernel::ipc::IPC<{ NUM_PROCS as u8 }>,
     scheduler: &'static RoundRobinSched<'static>,
     systick: cortexm4::systick::SysTick,
@@ -54,11 +57,67 @@ impl SyscallDriverLookup for Platform {
         F: FnOnce(Option<&dyn kernel::syscall::SyscallDriver>) -> R,
     {
         match driver_num {
+            capsules::gpio::DRIVER_NUM => f(Some(self.gpio)),
             kernel::ipc::DRIVER_NUM => f(Some(&self.ipc)),
             _ => f(None),
         }
     }
 }
+impl KernelResources<s32k14x::chip::S32k14x<S32k14xDefaultPeripherals>> for Platform {
+    type SyscallDriverLookup = Self;
+    type SyscallFilter = ();
+    type ProcessFault = ();
+    type CredentialsCheckingPolicy = ();
+    type Scheduler = RoundRobinSched<'static>;
+    type SchedulerTimer = cortexm4::systick::SysTick;
+    type WatchDog = ();
+    type ContextSwitchCallback = ();
+
+    fn syscall_driver_lookup(&self) -> &Self::SyscallDriverLookup {
+        &self
+    }
+    fn syscall_filter(&self) -> &Self::SyscallFilter {
+        &()
+    }
+    fn process_fault(&self) -> &Self::ProcessFault {
+        &()
+    }
+    fn credentials_checking_policy(&self) -> &'static Self::CredentialsCheckingPolicy {
+        &()
+    }
+    fn scheduler(&self) -> &Self::Scheduler {
+        self.scheduler
+    }
+    fn scheduler_timer(&self) -> &Self::SchedulerTimer {
+        &self.systick
+    }
+    fn watchdog(&self) -> &Self::WatchDog {
+        &()
+    }
+    fn context_switch_callback(&self) -> &Self::ContextSwitchCallback {
+        &()
+    }
+}
+
+/// Helper function called during bring-up that configures multiplexed I/O.
+unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
+    use s32k14x::gpio::PeripheralFunction::{A, B};
+
+    peripherals.pa[00].configure(Some(A)); // A0 - ADC0
+    peripherals.pa[01].configure(Some(A)); // A1 - ADC1
+}
+
+/// This is in a separate, inline(never) function so that its stack frame is
+/// removed when this function returns. Otherwise, the stack space used for
+/// these static_inits is wasted.
+#[inline(never)]
+unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDefaultPeripherals {
+    static_init!(
+        S32k14xDefaultPeripherals,
+        S32k14xDefaultPeripherals::new(pcc)
+    )
+}
+
 // impl KernelResources<nrf52832::chip::NRF52<'static, Nrf52832DefaultPeripherals<'static>>>
 //     for Platform
 // {
@@ -169,7 +228,13 @@ struct S32K144EvalueationKit {
 #[no_mangle]
 pub unsafe fn main() {
     s32k14x::init();
+    let wdt = s32k14x::wdt::Wdt::new();
+
+    WatchDog::suspend(&wdt);
     let board_kernel = static_init!(kernel::Kernel, kernel::Kernel::new(&PROCESSES));
+    let pcc = static_init!(s32k14x::pcc::Pcc, s32k14x::pcc::Pcc::new());
+    let peripherals = get_peripherals(pcc);
+
 
     let dynamic_deferred_call_clients =
         static_init!([DynamicDeferredCallClientState; 2], Default::default());
@@ -178,6 +243,8 @@ pub unsafe fn main() {
         DynamicDeferredCall::new(dynamic_deferred_call_clients)
     );
     DynamicDeferredCall::set_global_instance(dynamic_deferred_caller);
+
+    set_pin_primary_functions(peripherals);
 
     // let chip = static_init!(
     //     stm32f429zi::chip::Stm32f4xx<Stm32f429ziDefaultPeripherals>,
@@ -242,5 +309,5 @@ pub unsafe fn main() {
     //     None,
     //     &main_loop_capability,
     // );
-    loop{}
+    loop {}
 }

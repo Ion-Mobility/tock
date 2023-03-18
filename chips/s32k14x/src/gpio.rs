@@ -210,6 +210,20 @@ pub struct Port<'a> {
     pins: [GPIOPin<'a>; 32],
 }
 
+impl<'a> Index<usize> for Port<'a> {
+    type Output = GPIOPin<'a>;
+
+    fn index(&self, index: usize) -> &GPIOPin<'a> {
+        &self.pins[index]
+    }
+}
+
+impl<'a> IndexMut<usize> for Port<'a> {
+    fn index_mut(&mut self, index: usize) -> &mut GPIOPin<'a> {
+        &mut self.pins[index]
+    }
+}
+
 impl<'a> Port<'a> {
     pub const fn new_port_a() -> Self {
         Self {
@@ -424,6 +438,7 @@ impl<'a> GPIOPin<'a> {
     pub fn set(&self) {}
 
     pub fn clear(&self) {}
+    // pub fn configure(&self, mode: gpio::FloatingState) {}
 }
 
 impl<'a> hil::Controller for GPIOPin<'a> {
