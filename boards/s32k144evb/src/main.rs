@@ -45,7 +45,7 @@ pub static mut STACK_MEMORY: [u8; 0x2000] = [0; 0x2000];
 
 /// Supported drivers by the platform
 pub struct Platform {
-    gpio: &'static capsules::gpio::GPIO<'static, s32k14x::gpio::GPIOPin<'static>>,
+    gpio: &'static capsules::gpio::GPIO<'static, s32k14x::gpio::GpioPin<'static>>,
     ipc: kernel::ipc::IPC<{ NUM_PROCS as u8 }>,
     scheduler: &'static RoundRobinSched<'static>,
     systick: cortexm4::systick::SysTick,
@@ -99,14 +99,6 @@ impl KernelResources<s32k14x::chip::S32k14x<S32k14xDefaultPeripherals>> for Plat
     }
 }
 
-/// Helper function called during bring-up that configures multiplexed I/O.
-unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
-    use s32k14x::gpio::PeripheralFunction::{A, B};
-
-    peripherals.pa[00].configure(Some(A)); // A0 - ADC0
-    peripherals.pa[01].configure(Some(A)); // A1 - ADC1
-}
-
 /// This is in a separate, inline(never) function so that its stack frame is
 /// removed when this function returns. Otherwise, the stack space used for
 /// these static_inits is wasted.
@@ -118,108 +110,12 @@ unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDe
     )
 }
 
-// impl KernelResources<nrf52832::chip::NRF52<'static, Nrf52832DefaultPeripherals<'static>>>
-//     for Platform
-// {
-//     type SyscallDriverLookup = Self;
-//     type SyscallFilter = ();
-//     type ProcessFault = ();
-//     type CredentialsCheckingPolicy = ();
-//     type Scheduler = RoundRobinSched<'static>;
-//     type SchedulerTimer = cortexm4::systick::SysTick;
-//     type WatchDog = ();
-//     type ContextSwitchCallback = ();
-
-//     fn syscall_driver_lookup(&self) -> &Self::SyscallDriverLookup {
-//         &self
-//     }
-//     fn syscall_filter(&self) -> &Self::SyscallFilter {
-//         &()
-//     }
-//     fn process_fault(&self) -> &Self::ProcessFault {
-//         &()
-//     }
-//     fn credentials_checking_policy(&self) -> &'static Self::CredentialsCheckingPolicy {
-//         &()
-//     }
-//     fn scheduler(&self) -> &Self::Scheduler {
-//         self.scheduler
-//     }
-//     fn scheduler_timer(&self) -> &Self::SchedulerTimer {
-//         &self.systick
-//     }
-//     fn context_switch_callback(&self) -> &Self::ContextSwitchCallback {
-//         &()
-//     }
-// }
-/// A structure representing this platform that holds references to all
-/// capsules for this platform.
-struct S32K144EvalueationKit {
-    scheduler: &'static RoundRobinSched<'static>,
-    systick: cortexm4::systick::SysTick,
-}
-
-/// Mapping of integer syscalls to objects that implement syscalls.
-// impl SyscallDriverLookup for S32K144EvalueationKit {
-//     fn with_driver<F, R>(&self, driver_num: usize, f: F) -> R
-//     where
-//         F: FnOnce(Option<&dyn kernel::syscall::SyscallDriver>) -> R,
-//     {
-//         // match driver_num {
-//         //     capsules::console::DRIVER_NUM => f(Some(self.console)),
-//         //     capsules::led::DRIVER_NUM => f(Some(self.led)),
-//         //     capsules::button::DRIVER_NUM => f(Some(self.button)),
-//         //     capsules::adc::DRIVER_NUM => f(Some(self.adc)),
-//         //     capsules::alarm::DRIVER_NUM => f(Some(self.alarm)),
-//         //     capsules::temperature::DRIVER_NUM => f(Some(self.temperature)),
-//         //     kernel::ipc::DRIVER_NUM => f(Some(&self.ipc)),
-//         //     capsules::gpio::DRIVER_NUM => f(Some(self.gpio)),
-//         //     _ => f(None),
-//         // }
-//     }
-// }
-
-// impl
-//     KernelResources<
-//         s32k14x::chip::S32k14x<
-//             'static,
-//             s32k14x::interrupt_service::S32K14xDefaultPeripherals<'static>,
-//         >,
-//     > for S32K144EvalueationKit
-// {
-//     type SyscallDriverLookup = Self;
-//     type SyscallFilter = ();
-//     type ProcessFault = ();
-//     type CredentialsCheckingPolicy = ();
-//     type Scheduler = RoundRobinSched<'static>;
-//     type SchedulerTimer = cortexm4::systick::SysTick;
-//     type WatchDog = ();
-//     type ContextSwitchCallback = ();
-
-//     fn syscall_driver_lookup(&self) -> &Self::SyscallDriverLookup {
-//         &self
-//     }
-//     fn syscall_filter(&self) -> &Self::SyscallFilter {
-//         &()
-//     }
-//     fn process_fault(&self) -> &Self::ProcessFault {
-//         &()
-//     }
-//     fn credentials_checking_policy(&self) -> &'static Self::CredentialsCheckingPolicy {
-//         &()
-//     }
-//     fn scheduler(&self) -> &Self::Scheduler {
-//         self.scheduler
-//     }
-//     fn scheduler_timer(&self) -> &Self::SchedulerTimer {
-//         &self.systick
-//     }
-//     fn watchdog(&self) -> &Self::WatchDog {
-//         &()
-//     }
-//     fn context_switch_callback(&self) -> &Self::ContextSwitchCallback {
-//         &()
-//     }
+/// Helper function called during bring-up that configures multiplexed I/O.
+// unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
+    // use s32k14x::gpio::PeripheralFunction::{A, B};
+    // peripherals.pcc.enable_porta();
+    // peripherals.pa[00].configure(Some(A)); // A0 - ADC0
+    // peripherals.pa[01].configure(Some(A)); // A1 - ADC1
 // }
 
 /// Main function
@@ -234,8 +130,7 @@ pub unsafe fn main() {
     let board_kernel = static_init!(kernel::Kernel, kernel::Kernel::new(&PROCESSES));
     let pcc = static_init!(s32k14x::pcc::Pcc, s32k14x::pcc::Pcc::new());
     let peripherals = get_peripherals(pcc);
-
-
+    peripherals.port.[00].gpio.Output();
     let dynamic_deferred_call_clients =
         static_init!([DynamicDeferredCallClientState; 2], Default::default());
     let dynamic_deferred_caller = static_init!(
@@ -244,70 +139,7 @@ pub unsafe fn main() {
     );
     DynamicDeferredCall::set_global_instance(dynamic_deferred_caller);
 
-    set_pin_primary_functions(peripherals);
+    // set_pin_primary_functions(peripherals);
 
-    // let chip = static_init!(
-    //     stm32f429zi::chip::Stm32f4xx<Stm32f429ziDefaultPeripherals>,
-    //     stm32f429zi::chip::Stm32f4xx::new(peripherals)
-    // );
-    // CHIP = Some(chip);
-
-    io::WRITER.set_initialized();
-
-    // Create capabilities that the board needs to call certain protected kernel
-    // functions.
-    let memory_allocation_capability = create_capability!(capabilities::MemoryAllocationCapability);
-    let main_loop_capability = create_capability!(capabilities::MainLoopCapability);
-    let process_management_capability =
-        create_capability!(capabilities::ProcessManagementCapability);
-
-    // letnone = S32K144EvalueationKit {
-    //     scheduler,
-    //     systick: cortexm4::systick::SysTick::new(),
-    // };
-
-    // These symbols are defined in the linker script.
-    extern "C" {
-        /// Beginning of the ROM region containing app images.
-        static _sapps: u8;
-        /// End of the ROM region containing app images.
-        static _eapps: u8;
-        /// Beginning of the RAM region for app memory.
-        static mut _sappmem: u8;
-        /// End of the RAM region for app memory.
-        static _eappmem: u8;
-    }
-
-    // kernel::process::load_processes(
-    //     board_kernel,
-    //     chip,
-    //     core::slice::from_raw_parts(
-    //         &_sapps as *const u8,
-    //         &_eapps as *const u8 as usize - &_sapps as *const u8 as usize,
-    //     ),
-    //     core::slice::from_raw_parts_mut(
-    //         &mut _sappmem as *mut u8,
-    //         &_eappmem as *const u8 as usize - &_sappmem as *const u8 as usize,
-    //     ),
-    //     &mut PROCESSES,
-    //     &FAULT_RESPONSE,
-    //     &process_management_capability,
-    // )
-    // .unwrap_or_else(|err| {
-    //     debug!("Error loading processes!");
-    //     debug!("{:?}", err);
-    // });
-
-    //Uncomment to run multi alarm test
-    /*components::test::multi_alarm_test::MultiAlarmTestComponent::new(mux_alarm)
-    .finalize(components::multi_alarm_test_component_buf!(stm32f429zi::tim2::Tim2))
-    .run();*/
-
-    // board_kernel.kernel_loop(
-    //     NULL_PTR,
-    //     None,
-    //     None,
-    //     &main_loop_capability,
-    // );
     loop {}
 }

@@ -1,4 +1,5 @@
 use cortexm4;
+use cortexm4::support;
 use cortexm4::support::atomic;
 use enum_primitive::cast::FromPrimitive;
 use enum_primitive::enum_from_primitive;
@@ -17,7 +18,7 @@ use crate::pcc;
 
 /// General-purpose I/Os
 #[repr(C)]
-struct GpioRegisters {
+pub struct GpioRegisters {
     /// Pin Control Register n, array offset: 0x0, array step: 0x4
     pcr: [ReadWrite<u32, PCR::Register>; 32],
     /// Global Pin Control Low Register, offset: 0x80
@@ -92,24 +93,9 @@ register_bitfields![u32,
     ]
 ];
 
-// const GPIOE_BASE: StaticRef<GpioRegisters> =
-//     unsafe { StaticRef::new(0x4004_D000 as *const GpioRegisters) };
-
-// const GPIOD_BASE: StaticRef<GpioRegisters> =
-//     unsafe { StaticRef::new(0x4004_C000 as *const GpioRegisters) };
-
-// const GPIOC_BASE: StaticRef<GpioRegisters> =
-//     unsafe { StaticRef::new(0x4004_B000 as *const GpioRegisters) };
-
-// const GPIOB_BASE: StaticRef<GpioRegisters> =
-//     unsafe { StaticRef::new(0x4004_A000 as *const GpioRegisters) };
-
-// const GPIOA_BASE: StaticRef<GpioRegisters> =
-//     unsafe { StaticRef::new(0x4004_9000 as *const GpioRegisters) };
-
 /// General-purpose I/Os
 #[repr(C)]
-struct PinRegisters {
+pub struct IoRegisters {
     #[doc = "0x00 - Port Data Output Register"]
     pdor: ReadWrite<u32>,
 
@@ -132,20 +118,27 @@ struct PinRegisters {
     pidr: ReadWrite<u32>,
 }
 
-// const PINSE_BASE: StaticRef<PinRegisters> =
-//     unsafe { StaticRef::new(0x400F_F100 as *const PinRegisters) };
+const GPIOA_BASE: StaticRef<GpioRegisters> =
+    unsafe { StaticRef::new(0x4004_9000 as *const GpioRegisters) };
+const GPIOB_BASE: StaticRef<GpioRegisters> =
+    unsafe { StaticRef::new(0x4004_A000 as *const GpioRegisters) };
+const GPIOC_BASE: StaticRef<GpioRegisters> =
+    unsafe { StaticRef::new(0x4004_B000 as *const GpioRegisters) };
+const GPIOD_BASE: StaticRef<GpioRegisters> =
+    unsafe { StaticRef::new(0x4004_C000 as *const GpioRegisters) };
+const GPIOE_BASE: StaticRef<GpioRegisters> =
+    unsafe { StaticRef::new(0x4004_D000 as *const GpioRegisters) };
 
-// const PINSD_BASE: StaticRef<PinRegisters> =
-//     unsafe { StaticRef::new(0x400F_F0C0 as *const PinRegisters) };
-
-// const PINSC_BASE: StaticRef<PinRegisters> =
-//     unsafe { StaticRef::new(0x400F_F080 as *const PinRegisters) };
-
-// const PINSB_BASE: StaticRef<PinRegisters> =
-//     unsafe { StaticRef::new(0x400F_F040 as *const PinRegisters) };
-
-// const PINSA_BASE: StaticRef<PinRegisters> =
-//     unsafe { StaticRef::new(0x400F_F000 as *const PinRegisters) };
+const PINSA_BASE: StaticRef<IoRegisters> =
+    unsafe { StaticRef::new(0x400F_F000 as *const IoRegisters) };
+const PINSB_BASE: StaticRef<IoRegisters> =
+    unsafe { StaticRef::new(0x400F_F040 as *const IoRegisters) };
+const PINSC_BASE: StaticRef<IoRegisters> =
+    unsafe { StaticRef::new(0x400F_F080 as *const IoRegisters) };
+const PINSD_BASE: StaticRef<IoRegisters> =
+    unsafe { StaticRef::new(0x400F_F0C0 as *const IoRegisters) };
+const PINSE_BASE: StaticRef<IoRegisters> =
+    unsafe { StaticRef::new(0x400F_F100 as *const IoRegisters) };
 
 /// Peripheral functions that may be assigned to a `GPIOPin`.
 ///
@@ -184,401 +177,246 @@ pub enum Pin {
     PB08, PB09, PB10, PB11, PB12, PB13, PB14, PB15,
     PB16, PB17, PB18, PB19, PB20, PB21, PB22, PB23,
     PB24, PB25, PB26, PB27, PB28, PB29, PB30, PB31,
+
+    PC00, PC01, PC02, PC03, PC04, PC05, PC06, PC07,
+    PC08, PC09, PC10, PC11, PC12, PC13, PC14, PC15,
+    PC16, PC17, PC18, PC19, PC20, PC21, PC22, PC23,
+    PC24, PC25, PC26, PC27, PC28, PC29, PC30, PC31,
+
+    PD00, PD01, PD02, PD03, PD04, PD05, PD06, PD07,
+    PD08, PD09, PD10, PD11, PD12, PD13, PD14, PD15,
+    PD16, PD17, PD18, PD19, PD20, PD21, PD22, PD23,
+    PD24, PD25, PD26, PD27, PD28, PD29, PD30, PD31,
+
+    PE00, PE01, PE02, PE03, PE04, PE05, PE06, PE07,
+    PE08, PE09, PE10, PE11, PE12, PE13, PE14, PE15,
+    PE16, PE17, PE18, PE19, PE20, PE21, PE22, PE23,
+    PE24, PE25, PE26, PE27, PE28, PE29, PE30, PE31,
+
+}
+pub struct GpioPin<'a> {
+    gpio_registers: StaticRef<GpioRegisters>,
+    io_registers: StaticRef<IoRegisters>,
+    pin: Pin,
+    client: OptionalCell<&'a dyn gpio::Client>,
 }
 
-/// GPIO port that manages 32 pins.
-///
-/// The SAM4L divides GPIOs into _ports_ that each manage a group of 32
-/// individual pins. There are up to three ports, depending particular chip
-/// (see[^1]).
-///
-/// In general, the kernel and applications should care about individual
-/// [GPIOPin](struct.GPIOPin.html)s. However, mirroring the hardware grouping in
-/// Rust is useful, internally, for correctly handling and dispatching
-/// interrupts.
-///
-/// The port itself is a set of 32-bit memory-mapped I/O registers. Each
-/// register has a bit for each pin in the port. Pins are, thus, named by their
-/// port and offset bit in each register that controls is. For example, the
-/// first port has pins called "PA00" thru "PA31".
-///
-/// [^1]: SAM4L datasheet section 23.8 (page 573): "Module Configuration" for
-///       GPIO
-pub struct Port<'a> {
-    port: StaticRef<GpioRegisters>,
-    pin: StaticRef<PinRegisters>,
-    pins: [GPIOPin<'a>; 32],
-}
-
-impl<'a> Index<usize> for Port<'a> {
-    type Output = GPIOPin<'a>;
-
-    fn index(&self, index: usize) -> &GPIOPin<'a> {
-        &self.pins[index]
-    }
-}
-
-impl<'a> IndexMut<usize> for Port<'a> {
-    fn index_mut(&mut self, index: usize) -> &mut GPIOPin<'a> {
-        &mut self.pins[index]
-    }
-}
-
-impl<'a> Port<'a> {
-    pub const fn new_port_a() -> Self {
-        Self {
-            port: unsafe { StaticRef::new(0x4004_9000 as *const GpioRegisters) },
-            pin: unsafe { StaticRef::new(0x400F_F000 as *const PinRegisters) },
-            pins: [
-                GPIOPin::new(Pin::PA00),
-                GPIOPin::new(Pin::PA01),
-                GPIOPin::new(Pin::PA02),
-                GPIOPin::new(Pin::PA03),
-                GPIOPin::new(Pin::PA04),
-                GPIOPin::new(Pin::PA05),
-                GPIOPin::new(Pin::PA06),
-                GPIOPin::new(Pin::PA07),
-                GPIOPin::new(Pin::PA08),
-                GPIOPin::new(Pin::PA09),
-                GPIOPin::new(Pin::PA10),
-                GPIOPin::new(Pin::PA11),
-                GPIOPin::new(Pin::PA12),
-                GPIOPin::new(Pin::PA13),
-                GPIOPin::new(Pin::PA14),
-                GPIOPin::new(Pin::PA15),
-                GPIOPin::new(Pin::PA16),
-                GPIOPin::new(Pin::PA17),
-                GPIOPin::new(Pin::PA18),
-                GPIOPin::new(Pin::PA19),
-                GPIOPin::new(Pin::PA20),
-                GPIOPin::new(Pin::PA21),
-                GPIOPin::new(Pin::PA22),
-                GPIOPin::new(Pin::PA23),
-                GPIOPin::new(Pin::PA24),
-                GPIOPin::new(Pin::PA25),
-                GPIOPin::new(Pin::PA26),
-                GPIOPin::new(Pin::PA27),
-                GPIOPin::new(Pin::PA28),
-                GPIOPin::new(Pin::PA29),
-                GPIOPin::new(Pin::PA30),
-                GPIOPin::new(Pin::PA31),
-            ],
-        }
-    }
-
-    pub const fn new_port_b() -> Self {
-        Self {
-            port: unsafe { StaticRef::new(0x4004_A000 as *const GpioRegisters) },
-            pin: unsafe { StaticRef::new(0x400F_F040 as *const PinRegisters) },
-            pins: [
-                GPIOPin::new(Pin::PB00),
-                GPIOPin::new(Pin::PB01),
-                GPIOPin::new(Pin::PB02),
-                GPIOPin::new(Pin::PB03),
-                GPIOPin::new(Pin::PB04),
-                GPIOPin::new(Pin::PB05),
-                GPIOPin::new(Pin::PB06),
-                GPIOPin::new(Pin::PB07),
-                GPIOPin::new(Pin::PB08),
-                GPIOPin::new(Pin::PB09),
-                GPIOPin::new(Pin::PB10),
-                GPIOPin::new(Pin::PB11),
-                GPIOPin::new(Pin::PB12),
-                GPIOPin::new(Pin::PB13),
-                GPIOPin::new(Pin::PB14),
-                GPIOPin::new(Pin::PB15),
-                GPIOPin::new(Pin::PB16),
-                GPIOPin::new(Pin::PB17),
-                GPIOPin::new(Pin::PB18),
-                GPIOPin::new(Pin::PB19),
-                GPIOPin::new(Pin::PB20),
-                GPIOPin::new(Pin::PB21),
-                GPIOPin::new(Pin::PB22),
-                GPIOPin::new(Pin::PB23),
-                GPIOPin::new(Pin::PB24),
-                GPIOPin::new(Pin::PB25),
-                GPIOPin::new(Pin::PB26),
-                GPIOPin::new(Pin::PB27),
-                GPIOPin::new(Pin::PB28),
-                GPIOPin::new(Pin::PB29),
-                GPIOPin::new(Pin::PB30),
-                GPIOPin::new(Pin::PB31),
-            ],
-        }
-    }
-
-    pub fn handle_interrupt(&self) {
-        let port: &GpioRegisters = &*self.port;
-        let pin: &PinRegisters = &*self.pin;
-
-        // Interrupt Flag Register (IFR) bits are only valid if the same bits
-        // are enabled in Interrupt Enabled Register (IER).
-        let mut fired = port.isfr.get() & port.gpchr.get();
-        loop {
-            let pin = fired.trailing_zeros() as usize;
-            if pin > 32 {
-                fired &= !(1 << pin);
-                self.pins[pin].handle_interrupt();
-                port.isfr.set(1 << pin);
-            } else {
-                break;
-            }
-        }
-    }
-}
-
-pub struct GPIOPin<'a> {
-    port: StaticRef<GpioRegisters>,
-    pin_mask: u32,
-    client: OptionalCell<&'a dyn hil::gpio::Client>,
-}
-
-impl<'a> GPIOPin<'a> {
-    pub const fn new(pin: Pin) -> GPIOPin<'a> {
-        GPIOPin {
-            port: unsafe { StaticRef::new(0x4004_9000 as *const GpioRegisters) },
-            pin_mask: 1 << ((pin as u32) % 32),
+impl<'a> GpioPin<'a> {
+    pub const fn new(
+        gpio_base: StaticRef<GpioRegisters>,
+        io_base: StaticRef<IoRegisters>,
+        pin: Pin,
+    ) -> GpioPin<'a> {
+        GpioPin {
+            gpio_registers: gpio_base,
+            io_registers: io_base,
+            pin,
             client: OptionalCell::empty(),
         }
     }
-    pub fn set_client(&self, client: &'a dyn gpio::Client) {
-        self.client.set(client);
-    }
 
-    pub fn select_peripheral(&self, function: PeripheralFunction) {
-        let f = function as u32;
-        let (bit0, bit1, bit2) = (f & 0b1, (f & 0b10) >> 1, (f & 0b100) >> 2);
-        let port: &GpioRegisters = &*self.port;
-
-        // clear GPIO enable for pin
-        // port.gper.clear.set(self.pin_mask);
-
-        // Set PMR0-2 according to passed in peripheral
-        if bit0 == 0 {
-            // port.pmr0.clear.set(self.pin_mask);
-        } else {
-            // port.pmr0.set.set(self.pin_mask);
-        }
-        if bit1 == 0 {
-            // port.pmr1.clear.set(self.pin_mask);
-        } else {
-            // port.pmr1.set.set(self.pin_mask);
-        }
-        if bit2 == 0 {
-            // port.pmr2.clear.set(self.pin_mask);
-        } else {
-            // port.pmr2.set.set(self.pin_mask);
-        }
-    }
-
-    pub fn enable(&self) {}
-
-    pub fn disable(&self) {}
-
-    pub fn is_pending(&self) -> bool {
-        true
-    }
-
-    pub fn enable_output(&self) {}
-
-    pub fn disable_output(&self) {}
-
-    pub fn enable_pull_down(&self) {}
-
-    pub fn disable_pull_down(&self) {}
-
-    pub fn enable_pull_up(&self) {}
-
-    pub fn disable_pull_up(&self) {}
-    /// Sets the interrupt mode registers. Interrupts may fire on the rising or
-    /// falling edge of the pin or on both.
-    ///
-    /// The mode is a two-bit value based on the mapping from section 23.7.13 of
-    /// the SAM4L datasheet (page 563):
-    ///
-    /// | `mode` value | Interrupt Mode |
-    /// | ------------ | -------------- |
-    /// | 0b00         | Pin change     |
-    /// | 0b01         | Rising edge    |
-    /// | 0b10         | Falling edge   |
-    ///
-    pub fn set_interrupt_mode(&self, mode: u8) {
-        let port: &GpioRegisters = &*self.port;
-        if mode & 0b01 != 0 {
-            // port.imr0.set.set(self.pin_mask);
-        } else {
-            // port.imr0.clear.set(self.pin_mask);
-        }
-
-        if mode & 0b10 != 0 {
-            // port.imr1.set.set(self.pin_mask);
-        } else {
-            // port.imr1.clear.set(self.pin_mask);
-        }
-    }
-
-    pub fn enable_interrupt(&self) {}
-
-    pub fn disable_interrupt(&self) {}
-
-    pub fn handle_interrupt(&self) {}
-
-    pub fn disable_schmidtt_trigger(&self) {}
-
-    pub fn enable_schmidtt_trigger(&self) {}
-
-    pub fn read(&self) -> bool {
-        true
-    }
-
-    pub fn toggle(&self) -> bool {
-        true
-    }
-
-    pub fn set(&self) {}
-
-    pub fn clear(&self) {}
-    // pub fn configure(&self, mode: gpio::FloatingState) {}
-}
-
-impl<'a> hil::Controller for GPIOPin<'a> {
-    type Config = Option<PeripheralFunction>;
-
-    fn configure(&self, config: Self::Config) {
-        match config {
-            Some(c) => self.select_peripheral(c),
-            None => self.enable(),
-        }
+    fn handle_interrupt(&self) {
+        support::nop();
     }
 }
 
-impl<'a> gpio::Configure for GPIOPin<'a> {
+impl gpio::Configure for GpioPin<'_> {
+    fn configuration(&self) -> gpio::Configuration {
+        // if self.io_registers.pidr.read() {
+        //     gpio::Configuration::Input
+        // } else {
+        //     gpio::Configuration::InputOutput
+        // }
+        gpio::Configuration::InputOutput
+    }
+
     fn set_floating_state(&self, mode: gpio::FloatingState) {
         match mode {
             gpio::FloatingState::PullUp => {
-                self.disable_pull_down();
-                self.enable_pull_up();
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPU::SET + IO_MUX_GPIO::MCU_WPU::SET);
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPD::CLEAR + IO_MUX_GPIO::MCU_WPD::CLEAR);
             }
             gpio::FloatingState::PullDown => {
-                self.disable_pull_up();
-                self.enable_pull_down();
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPU::CLEAR + IO_MUX_GPIO::MCU_WPU::CLEAR);
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPD::SET + IO_MUX_GPIO::MCU_WPD::SET);
             }
             gpio::FloatingState::PullNone => {
-                self.disable_pull_up();
-                self.disable_pull_down();
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPU::CLEAR + IO_MUX_GPIO::MCU_WPU::CLEAR);
+                // self.iomux_registers.gpio[self.pin.shift]
+                //     .modify(IO_MUX_GPIO::FUN_WPD::CLEAR + IO_MUX_GPIO::MCU_WPD::CLEAR);
             }
         }
     }
 
-    fn deactivate_to_low_power(&self) {
-        GPIOPin::disable(self);
-    }
-
-    fn make_output(&self) -> gpio::Configuration {
-        self.enable();
-        GPIOPin::enable_output(self);
-        self.disable_schmidtt_trigger();
-        gpio::Configuration::Output
-    }
-
-    fn make_input(&self) -> gpio::Configuration {
-        self.enable();
-        GPIOPin::disable_output(self);
-        self.enable_schmidtt_trigger();
-        gpio::Configuration::Input
-    }
-
-    fn disable_output(&self) -> gpio::Configuration {
-        let port: &GpioRegisters = &*self.port;
-        // port.oder.clear.set(self.pin_mask);
-        self.configuration()
-    }
-
-    fn disable_input(&self) -> gpio::Configuration {
-        self.configuration()
-    }
-
-    fn is_input(&self) -> bool {
-        let port: &GpioRegisters = &*self.port;
-        // port.gper.get() & self.pin_mask != 0
-        true
-    }
-
-    fn is_output(&self) -> bool {
-        let port: &GpioRegisters = &*self.port;
-        // port.oder.get() & self.pin_mask != 0
-        true
-    }
-
     fn floating_state(&self) -> gpio::FloatingState {
-        let port: &GpioRegisters = &*self.port;
-        let down = (port.gpchr.get() & self.pin_mask) != 0;
-        let up = (port.gpchr.get() & self.pin_mask) != 0;
-        if down {
-            gpio::FloatingState::PullDown
-        } else if up {
+        // if self.iomux_registers.gpio[self.pin.shift].is_set(IO_MUX_GPIO::FUN_WPU) {
+        //     gpio::FloatingState::PullUp
+        // } else if self.iomux_registers.gpio[self.pin.shift].is_set(IO_MUX_GPIO::FUN_WPD) {
+        //     gpio::FloatingState::PullDown
+        if false {
             gpio::FloatingState::PullUp
         } else {
             gpio::FloatingState::PullNone
         }
     }
 
-    fn configuration(&self) -> gpio::Configuration {
-        let port: &GpioRegisters = &*self.port;
-        let input = self.is_input();
-        let output = self.is_output();
-        let gpio = (port.gpchr.get() & self.pin_mask) == 1;
-        let config = (gpio, input, output);
-        match config {
-            (false, _, _) => gpio::Configuration::Function,
-            (true, false, false) => gpio::Configuration::Other,
-            (true, false, true) => gpio::Configuration::Output,
-            (true, true, false) => gpio::Configuration::Input,
-            (true, true, true) => gpio::Configuration::InputOutput,
-        }
+    fn deactivate_to_low_power(&self) {
+        self.disable_input();
+        self.disable_output();
+    }
+
+    fn make_output(&self) -> gpio::Configuration {
+        // Setting peripheral index 128 causes GPIO_OUT_REG and GPIO_ENABLE_REG to enable for the given pin
+        // self.registers.func_out_sel_cfg[self.pin.shift].set(0x80);
+
+        // IO Mux function 1 on all pins is GPIO, no alternate peripherals (see table 5-2 in ESP32 datasheet)
+        // self.iomux_registers.gpio[self.pin.shift].modify(IO_MUX_GPIO::MCU_SEL::FUN_1);
+
+        // self.registers
+        //     .enable_w1ts
+        //     .set(self.pin.mask << self.pin.shift);
+        gpio::Configuration::Output
+    }
+
+    fn disable_output(&self) -> gpio::Configuration {
+        // self.registers
+        //     .enable_w1tc
+        //     .set(self.pin.mask << self.pin.shift);
+        gpio::Configuration::Input
+    }
+
+    fn make_input(&self) -> gpio::Configuration {
+        self.configuration()
+    }
+
+    fn disable_input(&self) -> gpio::Configuration {
+        /* We can't do this from the GPIO controller.
+         * It does look like the IO Mux is capable of this
+         * though.
+         */
+        gpio::Configuration::Input
     }
 }
 
-impl<'a> gpio::Input for GPIOPin<'a> {
+impl gpio::Input for GpioPin<'_> {
     fn read(&self) -> bool {
-        GPIOPin::read(self)
+        // self.io_registers.pdir.is_set(self.pin as u32)
+        true
     }
 }
 
-impl<'a> gpio::Output for GPIOPin<'a> {
+impl gpio::Output for GpioPin<'_> {
     fn toggle(&self) -> bool {
-        GPIOPin::toggle(self)
+        true
     }
 
-    fn set(&self) {
-        GPIOPin::set(self);
-    }
+    fn set(&self) {}
 
-    fn clear(&self) {
-        GPIOPin::clear(self);
-    }
+    fn clear(&self) {}
 }
 
-impl<'a> gpio::Interrupt<'a> for GPIOPin<'a> {
+impl<'a> gpio::Interrupt<'a> for GpioPin<'a> {
+    fn set_client(&self, client: &'a dyn gpio::Client) {
+        self.client.set(client);
+    }
+
     fn enable_interrupts(&self, mode: gpio::InterruptEdge) {
-        let mode_bits = match mode {
-            hil::gpio::InterruptEdge::EitherEdge => 0b00,
-            hil::gpio::InterruptEdge::RisingEdge => 0b01,
-            hil::gpio::InterruptEdge::FallingEdge => 0b10,
-        };
-        GPIOPin::set_interrupt_mode(self, mode_bits);
-        GPIOPin::enable_interrupt(self);
+        // self.registers.pin[self.pin.shift].modify(PIN::INT_ENA::Enable);
+
+        match mode {
+            gpio::InterruptEdge::RisingEdge => {
+                // self.registers.pin[self.pin.shift].modify(PIN::INT_TYPE::POSEDGE);
+            }
+            gpio::InterruptEdge::FallingEdge => {
+                // self.registers.pin[self.pin.shift].modify(PIN::INT_TYPE::NEGEDGE);
+            }
+            gpio::InterruptEdge::EitherEdge => {
+                // self.registers.pin[self.pin.shift].modify(PIN::INT_TYPE::ANYEDGE);
+            }
+        }
+
+        // self.iomux_registers.gpio[self.pin.shift]
+        //     .write(IO_MUX_GPIO::FUN_IE::SET + IO_MUX_GPIO::MCU_IE::SET);
+
+        // self.registers.pin[self.pin.shift].modify(PIN::SYNC2_BYPASS::SET);
+        // self.registers.pin[self.pin.shift].modify(PIN::SYNC1_BYPASS::SET);
+
+        // self.registers
+        //     .status_next
+        //     .set(1 << self.pin.shift | self.registers.status_next.get());
+
+        // self.registers.pin[self.pin.shift].modify(PIN::WAKEUP_ENABLE::SET);
     }
 
     fn disable_interrupts(&self) {
-        GPIOPin::disable_interrupt(self);
-    }
-
-    fn set_client(&self, client: &'a dyn gpio::Client) {
-        GPIOPin::set_client(self, client);
+        // self.registers.pin[self.pin.shift].modify(PIN::INT_ENA::Disabled);
     }
 
     fn is_pending(&self) -> bool {
-        GPIOPin::is_pending(self)
+        // self.registers.status.is_set(self.pin)
+        true
+    }
+}
+struct PortClock<'a>(pcc::PeripheralClock<'a>);
+
+pub struct Port<'a> {
+    clock: PortClock<'a>,
+    pins: [GpioPin<'a>; 4],
+}
+
+impl ClockInterface for PortClock<'_> {
+    fn is_enabled(&self) -> bool {
+        self.0.is_enabled()
+    }
+
+    fn enable(&self) {
+        self.0.enable();
+    }
+
+    fn disable(&self) {
+        self.0.disable();
+    }
+}
+
+impl<'a> Port<'a> {
+    pub const fn new(pcc: &'a pcc::Pcc) -> Self {
+        Self {
+            pins: [
+                GpioPin::new(GPIOA_BASE, PINSA_BASE, Pin::PA00),
+                GpioPin::new(GPIOA_BASE, PINSA_BASE, Pin::PA01),
+                GpioPin::new(GPIOA_BASE, PINSA_BASE, Pin::PA02),
+                GpioPin::new(GPIOA_BASE, PINSA_BASE, Pin::PA03),
+            ],
+            clock: PortClock(pcc::PeripheralClock::new(
+                pcc,
+                pcc::ClockGate::PCC_PORTA_INDEX,
+            )),
+        }
+    }
+
+    pub fn handle_interrupt(&self) {
+        // Determine the GPIO pin that triggered.
+        // let pin = self.pins[0].registers.status.get().trailing_zeros() as usize;
+
+        // self.pins[pin].handle_interrupt();
+    }
+}
+
+impl<'a> Index<usize> for Port<'a> {
+    type Output = GpioPin<'a>;
+
+    fn index(&self, index: usize) -> &GpioPin<'a> {
+        &self.pins[index]
+    }
+}
+
+impl<'a> IndexMut<usize> for Port<'a> {
+    fn index_mut(&mut self, index: usize) -> &mut GpioPin<'a> {
+        &mut self.pins[index]
     }
 }

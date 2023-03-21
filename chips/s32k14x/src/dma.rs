@@ -732,7 +732,7 @@ impl<'a> Dma<'a> {
     pub const fn new(pcc: &'a pcc::Pcc) -> Self {
         Dma {
             channels: DMA_CHANNELS,
-            clock_gate: pcc::PeripheralClock::new(pcc::PeripheralClockType::PCC_FTFC_INDEX, pcc),
+            clock_gate: pcc::PeripheralClock::new(pcc, pcc::ClockGate::PCC_FTFC_INDEX),
             registers: DMA_BASE,
         }
     }

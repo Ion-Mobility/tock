@@ -364,29 +364,165 @@ impl Pcc {
     }
 }
 
-pub struct PeripheralClock<'a> {
-    pub clock: PeripheralClockType,
-    pcc: &'a Pcc,
-}
-
 /// Clock name for the peripherals
-pub enum PeripheralClockType {
+pub enum ClockGate {
     PCC_FTFC_INDEX,
     PCC_DMAMUX_INDEX,
+    PCC_FLEXCAN0_INDEX,
+    PCC_FLEXCAN1_INDEX,
+    PCC_FTM3_INDEX,
+    PCC_ADC1_INDEX,
+    PCC_FLEXCAN2_INDEX,
+    PCC_LPSPI0_INDEX,
+    PCC_LPSPI1_INDEX,
+    PCC_LPSPI2_INDEX,
+    PCC_PDB1_INDEX,
+    PCC_CRC_INDEX,
+    PCC_PDB0_INDEX,
+    PCC_LPIT_INDEX,
+    PCC_FTM0_INDEX,
+    PCC_FTM1_INDEX,
+    PCC_FTM2_INDEX,
+    PCC_ADC0_INDEX,
+    PCC_RTC_INDEX,
+    PCC_LPTMR0_INDEX,
+    PCC_PORTA_INDEX,
+    PCC_PORTB_INDEX,
+    PCC_PORTC_INDEX,
+    PCC_PORTD_INDEX,
+    PCC_PORTE_INDEX,
+    PCC_FLEXIO_INDEX,
+    PCC_EWM_INDEX,
+    PCC_LPI2C0_INDEX,
+    PCC_LPUART0_INDEX,
+    PCC_LPUART1_INDEX,
+    PCC_LPUART2_INDEX,
+    PCC_CMP0_INDEX,
+}
+
+pub struct PeripheralClock<'a> {
+    pcc: &'a Pcc,
+    clock_gate: ClockGate,
 }
 
 impl<'a> PeripheralClock<'a> {
-    pub const fn new(clock: PeripheralClockType, pcc: &'a Pcc) -> Self {
-        Self { clock, pcc }
+    pub const fn new(pcc: &'a Pcc, gate: ClockGate) -> Self {
+        Self {
+            pcc,
+            clock_gate: gate,
+        }
     }
 }
 
 impl<'a> ClockInterface for PeripheralClock<'a> {
     fn is_enabled(&self) -> bool {
-        true
+        match self.clock_gate {
+            ClockGate::PCC_FTFC_INDEX => self.pcc.is_enable_ftfc(),
+            ClockGate::PCC_DMAMUX_INDEX => self.pcc.is_enable_dmamux(),
+            ClockGate::PCC_FLEXCAN0_INDEX => self.pcc.is_enable_flex_can0(),
+            ClockGate::PCC_FLEXCAN1_INDEX => self.pcc.is_enable_flex_can1(),
+            ClockGate::PCC_FTM3_INDEX => self.pcc.is_enable_ftm3(),
+            ClockGate::PCC_ADC1_INDEX => self.pcc.is_enable_adc1(),
+            ClockGate::PCC_FLEXCAN2_INDEX => self.pcc.is_enable_flex_can2(),
+            ClockGate::PCC_LPSPI0_INDEX => self.pcc.is_enable_lpspi0(),
+            ClockGate::PCC_LPSPI1_INDEX => self.pcc.is_enable_lpspi1(),
+            ClockGate::PCC_LPSPI2_INDEX => self.pcc.is_enable_lpspi2(),
+            ClockGate::PCC_PDB1_INDEX => self.pcc.is_enable_pdb1(),
+            ClockGate::PCC_CRC_INDEX => self.pcc.is_enable_crc(),
+            ClockGate::PCC_PDB0_INDEX => self.pcc.is_enable_pdb0(),
+            ClockGate::PCC_LPIT_INDEX => self.pcc.is_enable_lpit(),
+            ClockGate::PCC_FTM0_INDEX => self.pcc.is_enable_ftm0(),
+            ClockGate::PCC_FTM1_INDEX => self.pcc.is_enable_ftm1(),
+            ClockGate::PCC_FTM2_INDEX => self.pcc.is_enable_ftm2(),
+            ClockGate::PCC_ADC0_INDEX => self.pcc.is_enable_adc0(),
+            ClockGate::PCC_RTC_INDEX => self.pcc.is_enable_rtc(),
+            ClockGate::PCC_LPTMR0_INDEX => self.pcc.is_enable_lptmr0(),
+            ClockGate::PCC_PORTA_INDEX => self.pcc.is_enable_porta(),
+            ClockGate::PCC_PORTB_INDEX => self.pcc.is_enable_portb(),
+            ClockGate::PCC_PORTC_INDEX => self.pcc.is_enable_portc(),
+            ClockGate::PCC_PORTD_INDEX => self.pcc.is_enable_portd(),
+            ClockGate::PCC_PORTE_INDEX => self.pcc.is_enable_porte(),
+            ClockGate::PCC_FLEXIO_INDEX => self.pcc.is_enable_flexio(),
+            ClockGate::PCC_EWM_INDEX => self.pcc.is_enable_ewm(),
+            ClockGate::PCC_LPI2C0_INDEX => self.pcc.is_enable_lpi2c0(),
+            ClockGate::PCC_LPUART0_INDEX => self.pcc.is_enable_lpuart0(),
+            ClockGate::PCC_LPUART1_INDEX => self.pcc.is_enable_lpuart1(),
+            ClockGate::PCC_LPUART2_INDEX => self.pcc.is_enable_lpuart2(),
+            ClockGate::PCC_CMP0_INDEX => self.pcc.is_enable_cmp0(),
+        }
     }
 
-    fn enable(&self) {}
+    fn enable(&self) {
+        match self.clock_gate {
+            ClockGate::PCC_FTFC_INDEX => self.pcc.enable_ftfc(),
+            ClockGate::PCC_DMAMUX_INDEX => self.pcc.enable_dmamux(),
+            ClockGate::PCC_FLEXCAN0_INDEX => self.pcc.enable_flex_can0(),
+            ClockGate::PCC_FLEXCAN1_INDEX => self.pcc.enable_flex_can1(),
+            ClockGate::PCC_FTM3_INDEX => self.pcc.enable_ftm3(),
+            ClockGate::PCC_ADC1_INDEX => self.pcc.enable_adc1(),
+            ClockGate::PCC_FLEXCAN2_INDEX => self.pcc.enable_flex_can2(),
+            ClockGate::PCC_LPSPI0_INDEX => self.pcc.enable_lpspi0(),
+            ClockGate::PCC_LPSPI1_INDEX => self.pcc.enable_lpspi1(),
+            ClockGate::PCC_LPSPI2_INDEX => self.pcc.enable_lpspi2(),
+            ClockGate::PCC_PDB1_INDEX => self.pcc.enable_pdb1(),
+            ClockGate::PCC_CRC_INDEX => self.pcc.enable_crc(),
+            ClockGate::PCC_PDB0_INDEX => self.pcc.enable_pdb0(),
+            ClockGate::PCC_LPIT_INDEX => self.pcc.enable_lpit(),
+            ClockGate::PCC_FTM0_INDEX => self.pcc.enable_ftm0(),
+            ClockGate::PCC_FTM1_INDEX => self.pcc.enable_ftm1(),
+            ClockGate::PCC_FTM2_INDEX => self.pcc.enable_ftm2(),
+            ClockGate::PCC_ADC0_INDEX => self.pcc.enable_adc0(),
+            ClockGate::PCC_RTC_INDEX => self.pcc.enable_rtc(),
+            ClockGate::PCC_LPTMR0_INDEX => self.pcc.enable_lptmr0(),
+            ClockGate::PCC_PORTA_INDEX => self.pcc.enable_porta(),
+            ClockGate::PCC_PORTB_INDEX => self.pcc.enable_portb(),
+            ClockGate::PCC_PORTC_INDEX => self.pcc.enable_portc(),
+            ClockGate::PCC_PORTD_INDEX => self.pcc.enable_portd(),
+            ClockGate::PCC_PORTE_INDEX => self.pcc.enable_porte(),
+            ClockGate::PCC_FLEXIO_INDEX => self.pcc.enable_flexio(),
+            ClockGate::PCC_EWM_INDEX => self.pcc.enable_ewm(),
+            ClockGate::PCC_LPI2C0_INDEX => self.pcc.enable_lpi2c0(),
+            ClockGate::PCC_LPUART0_INDEX => self.pcc.enable_lpuart0(),
+            ClockGate::PCC_LPUART1_INDEX => self.pcc.enable_lpuart1(),
+            ClockGate::PCC_LPUART2_INDEX => self.pcc.enable_lpuart2(),
+            ClockGate::PCC_CMP0_INDEX => self.pcc.enable_cmp0(),
+        }
+    }
 
-    fn disable(&self) {}
+    fn disable(&self) {
+        match self.clock_gate {
+            ClockGate::PCC_FTFC_INDEX => self.pcc.disable_ftfc(),
+            ClockGate::PCC_DMAMUX_INDEX => self.pcc.disable_dmamux(),
+            ClockGate::PCC_FLEXCAN0_INDEX => self.pcc.disable_flex_can0(),
+            ClockGate::PCC_FLEXCAN1_INDEX => self.pcc.disable_flex_can1(),
+            ClockGate::PCC_FTM3_INDEX => self.pcc.disable_ftm3(),
+            ClockGate::PCC_ADC1_INDEX => self.pcc.disable_adc1(),
+            ClockGate::PCC_FLEXCAN2_INDEX => self.pcc.disable_flex_can2(),
+            ClockGate::PCC_LPSPI0_INDEX => self.pcc.disable_lpspi0(),
+            ClockGate::PCC_LPSPI1_INDEX => self.pcc.disable_lpspi1(),
+            ClockGate::PCC_LPSPI2_INDEX => self.pcc.disable_lpspi2(),
+            ClockGate::PCC_PDB1_INDEX => self.pcc.disable_pdb1(),
+            ClockGate::PCC_CRC_INDEX => self.pcc.disable_crc(),
+            ClockGate::PCC_PDB0_INDEX => self.pcc.disable_pdb0(),
+            ClockGate::PCC_LPIT_INDEX => self.pcc.disable_lpit(),
+            ClockGate::PCC_FTM0_INDEX => self.pcc.disable_ftm0(),
+            ClockGate::PCC_FTM1_INDEX => self.pcc.disable_ftm1(),
+            ClockGate::PCC_FTM2_INDEX => self.pcc.disable_ftm2(),
+            ClockGate::PCC_ADC0_INDEX => self.pcc.disable_adc0(),
+            ClockGate::PCC_RTC_INDEX => self.pcc.disable_rtc(),
+            ClockGate::PCC_LPTMR0_INDEX => self.pcc.disable_lptmr0(),
+            ClockGate::PCC_PORTA_INDEX => self.pcc.disable_porta(),
+            ClockGate::PCC_PORTB_INDEX => self.pcc.disable_portb(),
+            ClockGate::PCC_PORTC_INDEX => self.pcc.disable_portc(),
+            ClockGate::PCC_PORTD_INDEX => self.pcc.disable_portd(),
+            ClockGate::PCC_PORTE_INDEX => self.pcc.disable_porte(),
+            ClockGate::PCC_FLEXIO_INDEX => self.pcc.disable_flexio(),
+            ClockGate::PCC_EWM_INDEX => self.pcc.disable_ewm(),
+            ClockGate::PCC_LPI2C0_INDEX => self.pcc.disable_lpi2c0(),
+            ClockGate::PCC_LPUART0_INDEX => self.pcc.disable_lpuart0(),
+            ClockGate::PCC_LPUART1_INDEX => self.pcc.disable_lpuart1(),
+            ClockGate::PCC_LPUART2_INDEX => self.pcc.disable_lpuart2(),
+            ClockGate::PCC_CMP0_INDEX => self.pcc.disable_cmp0(),
+        }
+    }
 }

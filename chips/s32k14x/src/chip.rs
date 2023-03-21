@@ -26,7 +26,7 @@ impl<I: InterruptService<()> + 'static> S32k14x<I> {
 pub struct S32k14xDefaultPeripherals {
     pub pcc: &'static crate::pcc::Pcc,
     pub dma: crate::dma::Dma<'static>,
-    pub pa: crate::gpio::Port<'static>,
+    pub port: crate::gpio::Port<'static>,
     // pub pb: crate::gpio::Port<'static>,
 }
 
@@ -35,7 +35,7 @@ impl S32k14xDefaultPeripherals {
         Self {
             pcc,
             dma: crate::dma::Dma::new(pcc),
-            pa: crate::gpio::Port::new_port_a(),
+            port: crate::gpio::Port::new(pcc),
             // pb: crate::gpio::Port::new_port_b(),
         }
     }
