@@ -17,6 +17,7 @@ use kernel::hil;
 use kernel::hil::led::LedHigh;
 use kernel::hil::led::LedLow;
 use kernel::hil::Controller;
+use kernel::hil::gpio::Configure;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, debug, static_init};
@@ -41,11 +42,11 @@ const FAULT_RESPONSE: kernel::process::PanicFaultPolicy = kernel::process::Panic
 /// Dummy buffer that causes the linker to reserve enough space for the stack.
 #[no_mangle]
 #[link_section = ".stack_buffer"]
-pub static mut STACK_MEMORY: [u8; 0x2000] = [0; 0x2000];
+pub static mut STACK_MEMORY: [u8; 0x4000] = [0; 0x4000];
 
 /// Supported drivers by the platform
 pub struct Platform {
-    gpio: &'static capsules::gpio::GPIO<'static, s32k14x::gpio::GpioPin<'static>>,
+    gpio: &'static capsules::gpio::GPIO<'static, s32k14x::gpio::Pin<'static>>,
     ipc: kernel::ipc::IPC<{ NUM_PROCS as u8 }>,
     scheduler: &'static RoundRobinSched<'static>,
     systick: cortexm4::systick::SysTick,
@@ -111,12 +112,14 @@ unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDe
 }
 
 /// Helper function called during bring-up that configures multiplexed I/O.
-// unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
+unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
     // use s32k14x::gpio::PeripheralFunction::{A, B};
-    // peripherals.pcc.enable_porta();
-    // peripherals.pa[00].configure(Some(A)); // A0 - ADC0
-    // peripherals.pa[01].configure(Some(A)); // A1 - ADC1
-// }
+    // peripherals.ports.gpio1.enable_clock();
+    // peripherals.ports.gpio2.enable_clock();
+    // peripherals.ports.gpio3.enable_clock();
+    // peripherals.ports.gpio4.enable_clock();
+
+}
 
 /// Main function
 ///
@@ -130,7 +133,7 @@ pub unsafe fn main() {
     let board_kernel = static_init!(kernel::Kernel, kernel::Kernel::new(&PROCESSES));
     let pcc = static_init!(s32k14x::pcc::Pcc, s32k14x::pcc::Pcc::new());
     let peripherals = get_peripherals(pcc);
-    peripherals.port.[00].gpio.Output();
+
     let dynamic_deferred_call_clients =
         static_init!([DynamicDeferredCallClientState; 2], Default::default());
     let dynamic_deferred_caller = static_init!(
@@ -139,7 +142,7 @@ pub unsafe fn main() {
     );
     DynamicDeferredCall::set_global_instance(dynamic_deferred_caller);
 
-    // set_pin_primary_functions(peripherals);
+    set_pin_primary_functions(peripherals);
 
     loop {}
 }

@@ -78,289 +78,289 @@ impl Pcc {
         self.registers.pcc_ftfc.is_set(PCC_FIELDS::PR)
     }
     fn enable_ftfc(&self) {
-        self.registers.pcc_ftfc.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ftfc.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ftfc(&self) {
-        self.registers.pcc_ftfc.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ftfc.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_dmamux(&self) -> bool {
         self.registers.pcc_dmamux.is_set(PCC_FIELDS::PR)
     }
     fn enable_dmamux(&self) {
-        self.registers.pcc_dmamux.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_dmamux.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_dmamux(&self) {
-        self.registers.pcc_dmamux.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_dmamux.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_flex_can0(&self) -> bool {
         self.registers.pcc_flex_can0.is_set(PCC_FIELDS::PR)
     }
     fn enable_flex_can0(&self) {
-        self.registers.pcc_flex_can0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_flex_can0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_flex_can0(&self) {
-        self.registers.pcc_flex_can0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_flex_can0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_flex_can1(&self) -> bool {
         self.registers.pcc_flex_can1.is_set(PCC_FIELDS::PR)
     }
     fn enable_flex_can1(&self) {
-        self.registers.pcc_flex_can1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_flex_can1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_flex_can1(&self) {
-        self.registers.pcc_flex_can1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_flex_can1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_ftm3(&self) -> bool {
         self.registers.pcc_ftm3.is_set(PCC_FIELDS::PR)
     }
     fn enable_ftm3(&self) {
-        self.registers.pcc_ftm3.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ftm3.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ftm3(&self) {
-        self.registers.pcc_ftm3.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ftm3.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_adc1(&self) -> bool {
         self.registers.pcc_adc1.is_set(PCC_FIELDS::PR)
     }
     fn enable_adc1(&self) {
-        self.registers.pcc_adc1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_adc1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_adc1(&self) {
-        self.registers.pcc_adc1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_adc1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_flex_can2(&self) -> bool {
         self.registers.pcc_flex_can2.is_set(PCC_FIELDS::PR)
     }
     fn enable_flex_can2(&self) {
-        self.registers.pcc_flex_can2.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_flex_can2.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_flex_can2(&self) {
-        self.registers.pcc_flex_can2.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_flex_can2.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpspi0(&self) -> bool {
         self.registers.pcc_lpspi0.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpspi0(&self) {
-        self.registers.pcc_lpspi0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpspi0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpspi0(&self) {
-        self.registers.pcc_lpspi0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpspi0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpspi1(&self) -> bool {
         self.registers.pcc_lpspi1.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpspi1(&self) {
-        self.registers.pcc_lpspi1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpspi1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpspi1(&self) {
-        self.registers.pcc_lpspi1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpspi1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpspi2(&self) -> bool {
         self.registers.pcc_lpspi2.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpspi2(&self) {
-        self.registers.pcc_lpspi2.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpspi2.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpspi2(&self) {
-        self.registers.pcc_lpspi2.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpspi2.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_pdb1(&self) -> bool {
         self.registers.pcc_pdb1.is_set(PCC_FIELDS::PR)
     }
     fn enable_pdb1(&self) {
-        self.registers.pcc_pdb1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_pdb1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_pdb1(&self) {
-        self.registers.pcc_pdb1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_pdb1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_crc(&self) -> bool {
         self.registers.pcc_crc.is_set(PCC_FIELDS::PR)
     }
     fn enable_crc(&self) {
-        self.registers.pcc_crc.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_crc.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_crc(&self) {
-        self.registers.pcc_crc.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_crc.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_pdb0(&self) -> bool {
         self.registers.pcc_pdb0.is_set(PCC_FIELDS::PR)
     }
     fn enable_pdb0(&self) {
-        self.registers.pcc_pdb0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_pdb0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_pdb0(&self) {
-        self.registers.pcc_pdb0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_pdb0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpit(&self) -> bool {
         self.registers.pcc_lpit.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpit(&self) {
-        self.registers.pcc_lpit.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpit(&self) {
-        self.registers.pcc_lpit.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_ftm0(&self) -> bool {
         self.registers.pcc_ftm0.is_set(PCC_FIELDS::PR)
     }
     fn enable_ftm0(&self) {
-        self.registers.pcc_ftm0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ftm0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ftm0(&self) {
-        self.registers.pcc_ftm0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ftm0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_ftm1(&self) -> bool {
         self.registers.pcc_ftm1.is_set(PCC_FIELDS::PR)
     }
     fn enable_ftm1(&self) {
-        self.registers.pcc_ftm1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ftm1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ftm1(&self) {
-        self.registers.pcc_ftm1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ftm1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_ftm2(&self) -> bool {
         self.registers.pcc_ftm2.is_set(PCC_FIELDS::PR)
     }
     fn enable_ftm2(&self) {
-        self.registers.pcc_ftm2.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ftm2.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ftm2(&self) {
-        self.registers.pcc_ftm2.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ftm2.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_adc0(&self) -> bool {
         self.registers.pcc_adc0.is_set(PCC_FIELDS::PR)
     }
     fn enable_adc0(&self) {
-        self.registers.pcc_adc0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_adc0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_adc0(&self) {
-        self.registers.pcc_adc0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_adc0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_rtc(&self) -> bool {
         self.registers.pcc_rtc.is_set(PCC_FIELDS::PR)
     }
     fn enable_rtc(&self) {
-        self.registers.pcc_rtc.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_rtc.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_rtc(&self) {
-        self.registers.pcc_rtc.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_rtc.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lptmr0(&self) -> bool {
         self.registers.pcc_lptmr0.is_set(PCC_FIELDS::PR)
     }
     fn enable_lptmr0(&self) {
-        self.registers.pcc_lptmr0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lptmr0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lptmr0(&self) {
-        self.registers.pcc_lptmr0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lptmr0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_porta(&self) -> bool {
         self.registers.pcc_porta.is_set(PCC_FIELDS::PR)
     }
     fn enable_porta(&self) {
-        self.registers.pcc_porta.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_porta.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_porta(&self) {
-        self.registers.pcc_porta.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_porta.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_portb(&self) -> bool {
         self.registers.pcc_portb.is_set(PCC_FIELDS::PR)
     }
     fn enable_portb(&self) {
-        self.registers.pcc_portb.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_portb.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_portb(&self) {
-        self.registers.pcc_portb.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_portb.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_portc(&self) -> bool {
         self.registers.pcc_portc.is_set(PCC_FIELDS::PR)
     }
     fn enable_portc(&self) {
-        self.registers.pcc_portc.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_portc.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_portc(&self) {
-        self.registers.pcc_portc.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_portc.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_portd(&self) -> bool {
         self.registers.pcc_portd.is_set(PCC_FIELDS::PR)
     }
     fn enable_portd(&self) {
-        self.registers.pcc_portd.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_portd.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_portd(&self) {
-        self.registers.pcc_portd.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_portd.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_porte(&self) -> bool {
         self.registers.pcc_porte.is_set(PCC_FIELDS::PR)
     }
     fn enable_porte(&self) {
-        self.registers.pcc_porte.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_porte.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_porte(&self) {
-        self.registers.pcc_porte.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_porte.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_flexio(&self) -> bool {
         self.registers.pcc_flexio.is_set(PCC_FIELDS::PR)
     }
     fn enable_flexio(&self) {
-        self.registers.pcc_flexio.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_flexio.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_flexio(&self) {
-        self.registers.pcc_flexio.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_flexio.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_ewm(&self) -> bool {
         self.registers.pcc_ewm.is_set(PCC_FIELDS::PR)
     }
     fn enable_ewm(&self) {
-        self.registers.pcc_ewm.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_ewm.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_ewm(&self) {
-        self.registers.pcc_ewm.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_ewm.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpi2c0(&self) -> bool {
         self.registers.pcc_lpi2c0.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpi2c0(&self) {
-        self.registers.pcc_lpi2c0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpi2c0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpi2c0(&self) {
-        self.registers.pcc_lpi2c0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpi2c0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpuart0(&self) -> bool {
         self.registers.pcc_lpuart0.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpuart0(&self) {
-        self.registers.pcc_lpuart0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpuart0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpuart0(&self) {
-        self.registers.pcc_lpuart0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpuart0.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpuart1(&self) -> bool {
         self.registers.pcc_lpuart1.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpuart1(&self) {
-        self.registers.pcc_lpuart1.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpuart1.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpuart1(&self) {
-        self.registers.pcc_lpuart1.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpuart1.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_lpuart2(&self) -> bool {
         self.registers.pcc_lpuart2.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpuart2(&self) {
-        self.registers.pcc_lpuart2.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_lpuart2.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_lpuart2(&self) {
-        self.registers.pcc_lpuart2.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_lpuart2.modify(PCC_FIELDS::SGC::CLEAR)
     }
     fn is_enable_cmp0(&self) -> bool {
         self.registers.pcc_cmp0.is_set(PCC_FIELDS::PR)
     }
     fn enable_cmp0(&self) {
-        self.registers.pcc_cmp0.modify(PCC_FIELDS::PR::SET)
+        self.registers.pcc_cmp0.modify(PCC_FIELDS::SGC::SET)
     }
     fn disable_cmp0(&self) {
-        self.registers.pcc_cmp0.modify(PCC_FIELDS::PR::CLEAR)
+        self.registers.pcc_cmp0.modify(PCC_FIELDS::SGC::CLEAR)
     }
 }
 
