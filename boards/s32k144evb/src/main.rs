@@ -25,6 +25,8 @@ use s32k14x::chip::S32k14xDefaultPeripherals;
 use kernel::platform::watchdog::WatchDog;
 /// Support routines for debugging I/O.
 pub mod io;
+/// Defines a vector which contains the boot section
+pub mod flashcfg;
 
 // Number of concurrent processes this platform supports.
 const NUM_PROCS: usize = 4;
@@ -38,6 +40,11 @@ static mut PROCESS_PRINTER: Option<&'static kernel::process::ProcessPrinterText>
 
 // How should the kernel respond when a process faults.
 const FAULT_RESPONSE: kernel::process::PanicFaultPolicy = kernel::process::PanicFaultPolicy {};
+
+// Manually setting the boot header section that contains the FCB header
+#[used]
+#[link_section = ".flashconfig"]
+static BOOT_HDR: [u32; 4] = flashcfg::FLASH_CFG;
 
 /// Dummy buffer that causes the linker to reserve enough space for the stack.
 #[no_mangle]
@@ -113,11 +120,11 @@ unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDe
 
 /// Helper function called during bring-up that configures multiplexed I/O.
 unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
-    // use s32k14x::gpio::PeripheralFunction::{A, B};
-    // peripherals.ports.gpio1.enable_clock();
-    // peripherals.ports.gpio2.enable_clock();
-    // peripherals.ports.gpio3.enable_clock();
-    // peripherals.ports.gpio4.enable_clock();
+    peripherals.ports.gpio1.enable_clock();
+    peripherals.ports.gpio2.enable_clock();
+    peripherals.ports.gpio3.enable_clock();
+    peripherals.ports.gpio4.enable_clock();
+    peripherals.ports.gpio5.enable_clock();
 
 }
 
@@ -143,6 +150,9 @@ pub unsafe fn main() {
     DynamicDeferredCall::set_global_instance(dynamic_deferred_caller);
 
     set_pin_primary_functions(peripherals);
-
+    
+    // Configuring the GPIO_AD_B0_09 as output
+    let RedLed = peripherals.ports.pin(s32k14x::gpio::PinId::PTD_00);
+    RedLed.make_output();
     loop {}
 }

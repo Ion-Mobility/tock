@@ -7,10 +7,10 @@
 #![no_std]
 
 pub mod chip;
-pub mod nvic;
-pub mod pcc;
 pub mod dma;
 pub mod gpio;
+pub mod nvic;
+pub mod pcc;
 pub mod wdt;
 
 // Peripherals
@@ -25,10 +25,7 @@ extern "C" {
     fn _estack();
 }
 
-#[cfg_attr(
-    all(target_arch = "arm", target_os = "none"),
-    link_section = ".vectors"
-)]
+#[cfg_attr(all(target_arch = "arm", target_os = "none"), link_section = ".vtor")]
 // used Ensures that the symbol is kept until the final binary
 #[cfg_attr(all(target_arch = "arm", target_os = "none"), used)]
 pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
@@ -50,10 +47,7 @@ pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
     CortexM4::SYSTICK_HANDLER, // SysTick
 ];
 
-#[cfg_attr(
-    all(target_arch = "arm", target_os = "none"),
-    link_section = ".vectors"
-)]
+#[cfg_attr(all(target_arch = "arm", target_os = "none"), link_section = ".vtor")]
 // used Ensures that the symbol is kept until the final binary
 #[cfg_attr(all(target_arch = "arm", target_os = "none"), used)]
 pub static IRQS: [unsafe extern "C" fn(); 89] = [
