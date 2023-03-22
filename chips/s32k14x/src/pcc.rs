@@ -57,6 +57,15 @@ register_bitfields![u32,
     PCC_FIELDS [
         PR OFFSET(31) NUMBITS(1) [],
         SGC OFFSET(30) NUMBITS(1) [],
+        PCS OFFSET(24) NUMBITS(3) [
+            OFF = 0,
+            SOSC = 1,
+            SIRC = 2,
+            FIRC = 3,
+            SPLL = 6,
+        ],
+        FRAC OFFSET(4) NUMBITS(1) [],
+        PCD  OFFSET(0) NUMBITS(4) []
     ]
 ];
 
@@ -195,7 +204,7 @@ impl Pcc {
         self.registers.pcc_lpit.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpit(&self) {
-        self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::SET)
+        self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::SET + PCC_FIELDS::PCS::SOSC)
     }
     fn disable_lpit(&self) {
         self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::CLEAR)
@@ -362,44 +371,67 @@ impl Pcc {
     fn disable_cmp0(&self) {
         self.registers.pcc_cmp0.modify(PCC_FIELDS::SGC::CLEAR)
     }
+
+    /// Set the UART clock selection
+    ///
+    /// Should only be called when *all* UART clock gates are disabled
+    // pub fn set_uart_clock_sel(&self, selection: UartClockSelection) {
+    //     self.registers
+    //         .cscdr1
+    //         .modify(CSCDR1::UART_CLK_SEL.val(selection as u32));
+    // }
+    // self.registers.pcc_lpit.is_set(PCC_FIELDS::PR)
+
+    /// Set the periodic clock selection
+    pub fn set_uart_clock_sel(&self, sel: PerclkClockSel) {
+        let sel = match sel {
+            PerclkClockSel::OFF => PCC_FIELDS::PCS::OFF,
+            PerclkClockSel::SOSC => PCC_FIELDS::PCS::SOSC,
+            PerclkClockSel::SIRC => PCC_FIELDS::PCS::SIRC,
+            PerclkClockSel::FIRC => PCC_FIELDS::PCS::FIRC,
+            PerclkClockSel::SPLL => PCC_FIELDS::PCS::SPLL,
+            PerclkClockSel::SOSC_DIV1 => PCC_FIELDS::PCS::SOSC,
+            PerclkClockSel::SIRC_DIV1 => PCC_FIELDS::PCS::SIRC,
+            PerclkClockSel::FIRC_DIV1 => PCC_FIELDS::PCS::FIRC,
+            PerclkClockSel::SPLL_DIV1 => PCC_FIELDS::PCS::SPLL,
+            PerclkClockSel::SOSC_DIV2 => PCC_FIELDS::PCS::SOSC,
+            PerclkClockSel::SIRC_DIV2 => PCC_FIELDS::PCS::SIRC,
+            PerclkClockSel::FIRC_DIV2 => PCC_FIELDS::PCS::FIRC,
+            PerclkClockSel::SPLL_DIV2 => PCC_FIELDS::PCS::SPLL,
+        };
+        // self.registers.pcc_lpit.modify(PCC_FIELDS::PCS::SIRC);
+    }
 }
 
 /// Periodic clock selection for GPTs and PITs
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PerclkClockSel {
-    /// IPG clock selection (default)
-    IPG,
-    /// Crystal oscillator
-    Oscillator,
-}
-
-/// Clock selections for the main peripheral
-#[derive(PartialEq, Eq)]
-#[repr(u32)]
-pub enum PeripheralClockSelection {
-    /// Pre peripheral clock
-    PrePeripheralClock,
-    /// Peripheral clock 2, with some division
-    PeripheralClock2Divided,
-}
-
-/// Pre-peripheral clock selections
-#[derive(PartialEq, Eq)]
-#[repr(u32)]
-pub enum PrePeripheralClockSelection {
-    Pll2,
-    Pll2Pfd2,
-    Pll2Pfd0,
-    Pll1,
-}
-
-/// Peripheral clock 2 selection
-#[derive(PartialEq, Eq)]
-#[repr(u32)]
-pub enum PeripheralClock2Selection {
-    Pll3,
-    Oscillator,
-    Pll2Bypass,
+    /// Clock is off
+    OFF,
+    /// OSCCLK - System Oscillator Bus Clock
+    SOSC,
+    /// SCGIRCLK - Slow IRC Clock
+    SIRC,
+    /// SCGFIRCLK - Fast IRC Clock
+    FIRC,
+    /// SCGPCLK System PLL clock
+    SPLL,
+    /// OSCCLK - System Oscillator Bus Clock
+    SOSC_DIV1,
+    /// SCGIRCLK - Slow IRC Clock
+    SIRC_DIV1,
+    /// SCGFIRCLK - Fast IRC Clock
+    FIRC_DIV1,
+    /// SCGPCLK System PLL clock
+    SPLL_DIV1,
+    /// OSCCLK - System Oscillator Bus Clock
+    SOSC_DIV2,
+    /// SCGIRCLK - Slow IRC Clock
+    SIRC_DIV2,
+    /// SCGFIRCLK - Fast IRC Clock
+    FIRC_DIV2,
+    /// SCGPCLK System PLL clock
+    SPLL_DIV2,
 }
 
 /// Clock name for the peripherals

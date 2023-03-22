@@ -132,10 +132,7 @@ impl<'a> Lpit1<'a> {
         Lpit::new(
             LPIT0_BASE,
             nvic::LPIT0_CH0_IRQN,
-            LpitClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccLPITGate,
-            )),
+            LpitClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccLPITGate)),
         )
     }
 }
@@ -177,8 +174,22 @@ impl<'a, S> Lpit<'a, S> {
     ///
     /// `divider` must be non-zero.
     pub fn start(&self, selection: pcc::PerclkClockSel, divider: u8) {
-        // // Disable GPT and the GPT interrupt register first
-        // self.registers.cr.modify(CR::EN::CLEAR);
+        // Disable GPT and the GPT interrupt register first
+        self.registers.mcr.modify(MCR::SW_RST::SET);
+        support::nop();
+        support::nop();
+        support::nop();
+        self.registers.mcr.modify(MCR::SW_RST::CLEAR);
+
+        /// Enable functional clock of LPIT Module
+        ///
+        self.registers.mcr.modify(MCR::M_CEN::SET);
+        self.registers.mcr.modify(MCR::DBG_EN::SET);
+        self.registers.mcr.modify(MCR::DOZE_EN::SET);
+
+        // self.registers.tmr[0].tval.set(0xFFFF_FFFF);
+        let tmp = self.registers.tmr[0].tval.get();
+        support::nop();
 
         // self.registers.ir.modify(IR::ROVIE::CLEAR);
         // self.registers.ir.modify(IR::IF1IE::CLEAR);

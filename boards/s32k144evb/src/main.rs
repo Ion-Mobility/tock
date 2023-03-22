@@ -120,6 +120,8 @@ unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDe
 
 /// Helper function called during bring-up that configures multiplexed I/O.
 unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
+    use s32k14x::pcc::PerclkClockSel;
+
     peripherals.ports.gpio1.enable_clock();
     peripherals.ports.gpio2.enable_clock();
     peripherals.ports.gpio3.enable_clock();
@@ -132,7 +134,8 @@ unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
     peripherals.lpuart1.set_baud();
     peripherals.lpuart2.set_baud();
     peripherals.lpit1.enable_clock();
-
+    peripherals.pcc.set_uart_clock_sel(PerclkClockSel::SIRC);
+    peripherals.lpit1.start(PerclkClockSel::SIRC, 0);
 }
 
 /// Main function
