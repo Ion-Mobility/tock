@@ -345,7 +345,7 @@ impl<'a> Lpuart<'a> {
             LPUART0_BASE,
             LpuartClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_LPUART0_INDEX,
+                pcc::ClockGate::PccLPUART0Gate,
             )),
             dma::DmaHardwareSource::Lpuart1Transfer,
             dma::DmaHardwareSource::Lpuart1Receive,
@@ -357,7 +357,7 @@ impl<'a> Lpuart<'a> {
             LPUART1_BASE,
             LpuartClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_LPUART1_INDEX,
+                pcc::ClockGate::PccLPUART1Gate,
             )),
             dma::DmaHardwareSource::Lpuart1Transfer,
             dma::DmaHardwareSource::Lpuart1Receive,
@@ -369,7 +369,7 @@ impl<'a> Lpuart<'a> {
             LPUART2_BASE,
             LpuartClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_LPUART2_INDEX,
+                pcc::ClockGate::PccLPUART2Gate,
             )),
             dma::DmaHardwareSource::Lpuart2Transfer,
             dma::DmaHardwareSource::Lpuart2Receive,

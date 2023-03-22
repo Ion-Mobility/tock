@@ -131,6 +131,7 @@ unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
     peripherals.lpuart0.set_baud();
     peripherals.lpuart1.set_baud();
     peripherals.lpuart2.set_baud();
+    peripherals.lpit1.enable_clock();
 
 }
 

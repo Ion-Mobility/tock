@@ -30,6 +30,7 @@ pub struct S32k14xDefaultPeripherals {
     pub lpuart0: crate::lpuart::Lpuart<'static>,
     pub lpuart1: crate::lpuart::Lpuart<'static>,
     pub lpuart2: crate::lpuart::Lpuart<'static>,
+    pub lpit1: crate::lpit::Lpit1<'static>,
 }
 
 impl S32k14xDefaultPeripherals {
@@ -41,6 +42,7 @@ impl S32k14xDefaultPeripherals {
             lpuart0: crate::lpuart::Lpuart::new_lpuart0(pcc),
             lpuart1: crate::lpuart::Lpuart::new_lpuart1(pcc),
             lpuart2: crate::lpuart::Lpuart::new_lpuart2(pcc),
+            lpit1: crate::lpit::Lpit1::new_lpit1(pcc),
         }
     }
 }

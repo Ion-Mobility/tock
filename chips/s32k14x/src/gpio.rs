@@ -501,7 +501,7 @@ impl<'a> Port<'a, 32> {
             IOA_BASE,
             PortClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_PORTA_INDEX,
+                pcc::ClockGate::PccPORTAGate,
             )),
         )
     }
@@ -511,7 +511,7 @@ impl<'a> Port<'a, 32> {
             IOB_BASE,
             PortClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_PORTB_INDEX,
+                pcc::ClockGate::PccPORTBGate,
             )),
         )
     }
@@ -521,7 +521,7 @@ impl<'a> Port<'a, 32> {
             IOC_BASE,
             PortClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_PORTC_INDEX,
+                pcc::ClockGate::PccPORTCGate,
             )),
         )
     }
@@ -531,7 +531,7 @@ impl<'a> Port<'a, 32> {
             IOD_BASE,
             PortClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_PORTD_INDEX,
+                pcc::ClockGate::PccPORTDGate,
             )),
         )
     }
@@ -541,7 +541,7 @@ impl<'a> Port<'a, 32> {
             IOE_BASE,
             PortClock(pcc::PeripheralClock::new(
                 pcc,
-                pcc::ClockGate::PCC_PORTE_INDEX,
+                pcc::ClockGate::PccPORTEGate,
             )),
         )
     }

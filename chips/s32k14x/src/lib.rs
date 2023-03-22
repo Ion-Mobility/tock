@@ -13,6 +13,7 @@ pub mod nvic;
 pub mod pcc;
 pub mod wdt;
 pub mod lpuart;
+pub mod lpit;
 
 // Peripherals
 // pub mod deferred_calls;
