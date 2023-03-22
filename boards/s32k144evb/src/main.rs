@@ -125,6 +125,12 @@ unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
     peripherals.ports.gpio3.enable_clock();
     peripherals.ports.gpio4.enable_clock();
     peripherals.ports.gpio5.enable_clock();
+    peripherals.lpuart0.enable_clock();
+    peripherals.lpuart1.enable_clock();
+    peripherals.lpuart2.enable_clock();
+    peripherals.lpuart0.set_baud();
+    peripherals.lpuart1.set_baud();
+    peripherals.lpuart2.set_baud();
 
 }
 
@@ -152,7 +158,7 @@ pub unsafe fn main() {
     set_pin_primary_functions(peripherals);
     
     // Configuring the GPIO_AD_B0_09 as output
-    let RedLed = peripherals.ports.pin(s32k14x::gpio::PinId::PTD_00);
-    RedLed.make_output();
+    // let RedLed = peripherals.ports.pin(s32k14x::gpio::PinId::PTD_00);
+    // RedLed.make_output();
     loop {}
 }

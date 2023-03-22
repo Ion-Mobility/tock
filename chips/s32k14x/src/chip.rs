@@ -27,6 +27,9 @@ pub struct S32k14xDefaultPeripherals {
     pub pcc: &'static crate::pcc::Pcc,
     pub dma: crate::dma::Dma<'static>,
     pub ports: crate::gpio::Ports<'static>,
+    pub lpuart0: crate::lpuart::Lpuart<'static>,
+    pub lpuart1: crate::lpuart::Lpuart<'static>,
+    pub lpuart2: crate::lpuart::Lpuart<'static>,
 }
 
 impl S32k14xDefaultPeripherals {
@@ -35,6 +38,9 @@ impl S32k14xDefaultPeripherals {
             pcc,
             dma: crate::dma::Dma::new(pcc),
             ports: crate::gpio::Ports::new(pcc),
+            lpuart0: crate::lpuart::Lpuart::new_lpuart0(pcc),
+            lpuart1: crate::lpuart::Lpuart::new_lpuart1(pcc),
+            lpuart2: crate::lpuart::Lpuart::new_lpuart2(pcc),
         }
     }
 }
@@ -42,11 +48,9 @@ impl S32k14xDefaultPeripherals {
 impl InterruptService<()> for S32k14xDefaultPeripherals {
     unsafe fn service_interrupt(&self, interrupt: u32) -> bool {
         match interrupt {
-            // nvic::LPUART1 => self.lpuart1.handle_interrupt(),
-            // nvic::LPUART2 => self.lpuart2.handle_interrupt(),
-            // nvic::LPI2C1 => self.lpi2c1.handle_event(),
-            // nvic::GPT1 => self.gpt1.handle_interrupt(),
-            // nvic::GPT2 => self.gpt2.handle_interrupt(),
+            nvic::LPUART0_RXTX_IRQN => self.lpuart0.handle_interrupt(),
+            nvic::LPUART1_RXTX_IRQN => self.lpuart1.handle_interrupt(),
+            nvic::LPUART2_RXTX_IRQN => self.lpuart2.handle_interrupt(),
             // nvic::GPIO1_1 => self.ports.gpio1.handle_interrupt(),
             // nvic::GPIO1_2 => self.ports.gpio1.handle_interrupt(),
             // nvic::GPIO2_1 => self.ports.gpio2.handle_interrupt(),
@@ -58,8 +62,8 @@ impl InterruptService<()> for S32k14xDefaultPeripherals {
             // nvic::GPIO5_1 => self.ports.gpio5.handle_interrupt(),
             // nvic::GPIO5_2 => self.ports.gpio5.handle_interrupt(),
             // nvic::SNVS_LP_WRAPPER => debug!("Interrupt: SNVS_LP_WRAPPER"),
-            // nvic::DMA0_16..=nvic::DMA15_31 => {
-            //     let low = (interrupt - nvic::DMA0_16) as usize;
+            // nvic::DMA0_IRQN..=nvic::DMA16_IRQN => {
+            //     let low = (interrupt - nvic::DMA0_IRQN) as usize;
             //     let high = low + 16;
             //     for channel in [&self.dma.channels[low], &self.dma.channels[high]] {
             //         if channel.is_interrupt() | channel.is_error() {
