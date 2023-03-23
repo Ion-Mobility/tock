@@ -14,7 +14,7 @@ pub mod pcc;
 pub mod wdt;
 pub mod lpuart;
 pub mod lpit;
-
+pub mod spc;
 // Peripherals
 // pub mod deferred_calls;
 //pub mod gpio;
