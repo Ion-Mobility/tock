@@ -69,6 +69,237 @@ register_bitfields![u32,
     ]
 ];
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockName {
+    /* Main clocks */
+    /// Core clock                     
+    CORE_CLK = 0,
+    /// Bus clock                      
+    BUS_CLK = 1,
+    /// Slow clock                     
+    SLOW_CLK = 2,
+    /// CLKOUT clock                   
+    CLKOUT_CLK = 3,
+
+    /* Other internal clocks used by peripherals. */
+    /// SIRC clock                     
+    SIRC_CLK = 4,
+    /// FIRC clock                     
+    FIRC_CLK = 5,
+    /// SOSC clock                     
+    SOSC_CLK = 6,
+    /// SPLL clock                     
+    SPLL_CLK = 7,
+    /// RTC_CLKIN clock                
+    RTC_CLKIN_CLK = 8,
+    /// SCG CLK_OUT clock              
+    SCG_CLKOUT_CLK = 9,
+
+    /// SIRCDIV1 functional clock      
+    SIRCDIV1_CLK = 10,
+    /// SIRCDIV2 functional clock      
+    SIRCDIV2_CLK = 11,
+    /// FIRCDIV1 functional clock      
+    FIRCDIV1_CLK = 12,
+    /// FIRCDIV2 functional clock      
+    FIRCDIV2_CLK = 13,
+    /// SOSCDIV1 functional clock      
+    SOSCDIV1_CLK = 14,
+    /// SOSCDIV2 functional clock      
+    SOSCDIV2_CLK = 15,
+    /// SPLLDIV1 functional clock      
+    SPLLDIV1_CLK = 16,
+    /// SPLLDIV2 functional clock      
+    SPLLDIV2_CLK = 17,
+
+    /// End of SCG clocks              
+    SCG_END_OF_CLOCKS = 18,
+
+    /* SIM clocks */
+    /// FTM0 External Clock Pin Select
+    SIM_FTM0_CLOCKSEL = 21,
+    /// FTM1 External Clock Pin Select
+    SIM_FTM1_CLOCKSEL = 22,
+    /// FTM2 External Clock Pin Select
+    SIM_FTM2_CLOCKSEL = 23,
+    /// FTM3 External Clock Pin Select
+    SIM_FTM3_CLOCKSEL = 24,
+    /// CLKOUT Select                  
+    SIM_CLKOUTSELL = 25,
+    /// RTCCLK clock                   
+    SIM_RTCCLK_CLK = 26,
+    /// LPO clock                      
+    SIM_LPO_CLK = 27,
+    /// LPO 1KHz clock                 
+    SIM_LPO_1K_CLK = 28,
+    /// LPO 32KHz clock                
+    SIM_LPO_32K_CLK = 29,
+    /// LPO 128KHz clock               
+    SIM_LPO_128K_CLK = 30,
+    /// EIM clock source               
+    SIM_EIM_CLK = 31,
+    /// ERM clock source               
+    SIM_ERM_CLK = 32,
+    /// DMA clock source               
+    SIM_DMA_CLK = 33,
+    /// MPU clock source               
+    SIM_MPU_CLK = 34,
+    /// MSCM clock source              
+    SIM_MSCM_CLK = 35,
+    /// End of SIM clocks              
+    SIM_END_OF_CLOCKS = 36,
+
+    /* PCC clocks */
+    /// CMP0 clock source              
+    CMP0_CLK = 41,
+    /// CRC0 clock source              
+    CRC0_CLK = 42,
+    /// DMAMUX0 clock source           
+    DMAMUX0_CLK = 43,
+    /// EWM0 clock source              
+    EWM0_CLK = 44,
+    /// PORTA clock source             
+    PORTA_CLK = 45,
+    /// PORTB clock source             
+    PORTB_CLK = 46,
+    /// PORTC clock source             
+    PORTC_CLK = 47,
+    /// PORTD clock source             
+    PORTD_CLK = 48,
+    /// PORTE clock source             
+    PORTE_CLK = 49,
+    /// RTC0 clock source              
+    RTC0_CLK = 50,
+    /// End of BUS clocks              
+    PCC_END_OF_BUS_CLOCKS = 51,
+    /// FlexCAN0 clock source          
+    FlexCAN0_CLK = 52,
+    /// FlexCAN1 clock source          
+    FlexCAN1_CLK = 53,
+    /// FlexCAN2 clock source          
+    FlexCAN2_CLK = 54,
+    /// PDB0 clock source              
+    PDB0_CLK = 55,
+    /// PDB1 clock source              
+    PDB1_CLK = 56,
+    /// End of SYS clocks              
+    PCC_END_OF_SYS_CLOCKS = 57,
+    /// FTFC0 clock source             
+    FTFC0_CLK = 58,
+    /// End of SLOW clocks             
+    PCC_END_OF_SLOW_CLOCKS = 59,
+    /// FTM0 clock source              
+    FTM0_CLK = 60,
+    /// FTM1 clock source              
+    FTM1_CLK = 61,
+    /// FTM2 clock source              
+    FTM2_CLK = 62,
+    /// FTM3 clock source              
+    FTM3_CLK = 63,
+    /// End of ASYNCH DIV1 clocks      
+    PCC_END_OF_ASYNCH_DIV1_CLOCKS = 64,
+    /// ADC0 clock source              
+    ADC0_CLK = 65,
+    /// ADC1 clock source              
+    ADC1_CLK = 66,
+    /// FLEXIO0 clock source           
+    FLEXIO0_CLK = 67,
+    /// LPI2C0 clock source            
+    LPI2C0_CLK = 68,
+    /// LPIT0 clock source             
+    LPIT0_CLK = 69,
+    /// LPSPI0 clock source            
+    LPSPI0_CLK = 70,
+    /// LPSPI1 clock source            
+    LPSPI1_CLK = 71,
+    /// LPSPI2 clock source            
+    LPSPI2_CLK = 72,
+    /// LPTMR0 clock source            
+    LPTMR0_CLK = 73,
+    /// LPUART0 clock source           
+    LPUART0_CLK = 74,
+    /// LPUART1 clock source           
+    LPUART1_CLK = 75,
+    /// LPUART2 clock source           
+    LPUART2_CLK = 76,
+    /// End of ASYNCH DIV2 clocks      
+    PCC_END_OF_ASYNCH_DIV2_CLOCKS = 77,
+    /// End of PCC clocks              
+    PCC_END_OF_CLOCKS = 78,
+    /// The total number of entries    
+    CLOCK_NAME_COUNT = 79,
+}
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockSource {
+    /// Clock is off
+    CLK_SRC_OFF = 0,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC = 1,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC = 2,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC = 3,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL = 6,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC_DIV1 = 7,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC_DIV1 = 8,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC_DIV1 = 9,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL_DIV1 = 10,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC_DIV2 = 11,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC_DIV2 = 12,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC_DIV2 = 13,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL_DIV2 = 14,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockFrac {
+    /// Fractional value is zero
+    MULTIPLY_BY_ONE = 0x00,
+    /// Fractional value is one            
+    MULTIPLY_BY_TWO = 0x01,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockDiv {
+    /// Divide by 1 (pass-through, no clock divide)
+    DIVIDE_BY_ONE = 0x00,
+    /// Divide by 2
+    DIVIDE_BY_TWO = 0x01,
+    /// Divide by 3
+    DIVIDE_BY_THREE = 0x02,
+    /// Divide by 4
+    DIVIDE_BY_FOR = 0x03,
+    /// Divide by 5
+    DIVIDE_BY_FIVE = 0x04,
+    /// Divide by 6
+    DIVIDE_BY_SIX = 0x05,
+    /// Divide by 7
+    DIVIDE_BY_SEVEN = 0x06,
+    /// Divide by 8 */      
+    DIVIDE_BY_EIGTH = 0x07,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct PeripheralClockConfig {
+    pub clockName: PeripheralClockName,
+    /// Peripheral clock gate.                     
+    pub clkGate: bool,
+    /// Peripheral clock source.                   
+    pub clkSrc: PeripheralClockSource,
+    /// Peripheral clock fractional value.         
+    pub frac: PeripheralClockFrac,
+    /// Peripheral clock divider value.            
+    pub divider: PeripheralClockDiv,
+}
+
 const PCC_BASE: StaticRef<PccRegisters> =
     unsafe { StaticRef::new(0x4006_5000 as *const PccRegisters) };
 
@@ -204,7 +435,9 @@ impl Pcc {
         self.registers.pcc_lpit.is_set(PCC_FIELDS::PR)
     }
     fn enable_lpit(&self) {
-        self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::SET + PCC_FIELDS::PCS::SOSC)
+        self.registers
+            .pcc_lpit
+            .modify(PCC_FIELDS::SGC::SET + PCC_FIELDS::PCS::SOSC)
     }
     fn disable_lpit(&self) {
         self.registers.pcc_lpit.modify(PCC_FIELDS::SGC::CLEAR)
@@ -401,6 +634,7 @@ impl Pcc {
         };
         // self.registers.pcc_lpit.modify(PCC_FIELDS::PCS::SIRC);
     }
+    pub fn PCC_SetClockMode(&self, clockname: PeripheralClockName, enable: bool) {}
 }
 
 /// Periodic clock selection for GPTs and PITs

@@ -122,6 +122,7 @@ unsafe fn get_peripherals(pcc: &'static s32k14x::pcc::Pcc) -> &'static S32k14xDe
 
 /// Helper function called during bring-up that configures multiplexed I/O.
 unsafe fn clk_initialize(peripherals: &S32k14xDefaultPeripherals) {
+    use s32k14x::pcc;
     use s32k14x::spc;
     let sircConfig: spc::SIRCConfig = spc::SIRCConfig {
         initialize: true,
@@ -243,8 +244,6 @@ unsafe fn clk_initialize(peripherals: &S32k14xDefaultPeripherals) {
         alternateClock: spc::SysAlterClockSource::SCG_SYSTEM_CLOCK_SRC_SYS_OSC,
     };
 
-    let pccConfig: spc::PCCConfig = spc::PCCConfig {};
-
     let simConfig: spc::SIMConfig = spc::SIMConfig {
         clockOutConfig: spc::SimClockOutConfig {
             /// Initialize    
@@ -311,11 +310,11 @@ unsafe fn clk_initialize(peripherals: &S32k14xDefaultPeripherals) {
     let pmcConfig: spc::PMCConfig = spc::PMCConfig {
         lpoClockConfig: spc::PmcLpoClockConfig {
             /// Initialize    
-            initialize: true,  
+            initialize: true,
             /// Enable/disable LPO     
-            enable: true, 
-            /// Trimming value for LPO 
-            trimValue: 0, 
+            enable: true,
+            /// Trimming value for LPO
+            trimValue: 0,
         },
     };
 
@@ -327,6 +326,238 @@ unsafe fn clk_initialize(peripherals: &S32k14xDefaultPeripherals) {
         rtcConfig: rtc_config,
         clockOutConfig: clockOutConfig,
         clockModeConfig: clockModeConfig,
+    };
+
+    let peripheralclockconfig: [spc::PeripheralClockConfig; 32] = [
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::ADC0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::ADC1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPSPI0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPSPI1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPSPI2_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPUART0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPUART1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPUART2_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPI2C0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_TWO,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPIT0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::LPTMR0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FTM0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC_DIV1,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FTM1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC_DIV1,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FTM2_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC_DIV1,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FTM3_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC_DIV1,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FLEXIO0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::CMP0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::CRC0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::DMAMUX0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::EWM0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FTFC0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PDB0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PDB1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::RTC0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FlexCAN0_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FlexCAN1_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::FlexCAN2_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PORTA_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PORTB_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PORTC_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PORTD_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+        spc::PeripheralClockConfig {
+            clockName: spc::PeripheralClockName::PORTE_CLK,
+            clkGate: true,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_OFF,
+            frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
+            divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
+        },
+    ];
+
+    let pccConfig: spc::PCCConfig = spc::PCCConfig {
+        perclockconfig: peripheralclockconfig,
+        numberofper: 32,
     };
 
     let clkuserconfig: spc::CLKUserConfig = spc::CLKUserConfig {

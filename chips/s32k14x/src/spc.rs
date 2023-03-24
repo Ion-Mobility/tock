@@ -1,3 +1,4 @@
+use core::ops::Index;
 use cortexm4;
 use cortexm4::support;
 use cortexm4::support::atomic;
@@ -153,6 +154,20 @@ const SIM_BASE: StaticRef<SimRegisters> =
 
 pub struct Sim {
     registers: StaticRef<SimRegisters>,
+}
+
+pub const PCC_PCCn_COUNT: u32 = 122;
+
+#[repr(C)]
+/// Pcc Register
+struct PCCnRegisters {
+    pub pccn: [ReadWrite<u32, PCC_FIELDS::Register>; 122],
+}
+const PCC_BASE: StaticRef<PCCnRegisters> =
+    unsafe { StaticRef::new(0x4006_5000 as *const PCCnRegisters) };
+
+struct Pccn {
+    registers: StaticRef<PCCnRegisters>,
 }
 
 register_bitfields![u32,
@@ -443,6 +458,21 @@ register_bitfields![u32,
     ],
 ];
 
+register_bitfields![u32,
+    PCC_FIELDS [
+        PR OFFSET(31) NUMBITS(1) [],
+        SGC OFFSET(30) NUMBITS(1) [],
+        PCS OFFSET(24) NUMBITS(3) [
+            OFF = 0,
+            SOSC = 1,
+            SIRC = 2,
+            FIRC = 3,
+            SPLL = 6,
+        ],
+        FRAC OFFSET(4) NUMBITS(1) [],
+        PCD  OFFSET(0) NUMBITS(4) []
+    ]
+];
 pub const NUMBER_OF_TCLK_INPUTS: usize = 3;
 pub const FTM_INSTANCE_COUNT: usize = 8;
 
@@ -1203,7 +1233,10 @@ pub struct PMCConfig {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct PCCConfig {}
+pub struct PCCConfig {
+    pub perclockconfig: [PeripheralClockConfig; 32],
+    pub numberofper: u32,
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct CLKUserConfig {
@@ -1225,6 +1258,435 @@ pub enum SysRunMode {
     SCG_SYSTEM_CLOCK_MODE_HSRUN = 3,
     /// MAX value.             
     SCG_SYSTEM_CLOCK_MODE_NONE,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockName {
+    /* Main clocks */
+    /// Core clock                     
+    CORE_CLK = 0,
+    /// Bus clock                      
+    BUS_CLK = 1,
+    /// Slow clock                     
+    SLOW_CLK = 2,
+    /// CLKOUT clock                   
+    CLKOUT_CLK = 3,
+
+    /* Other internal clocks used by peripherals. */
+    /// SIRC clock                     
+    SIRC_CLK = 4,
+    /// FIRC clock                     
+    FIRC_CLK = 5,
+    /// SOSC clock                     
+    SOSC_CLK = 6,
+    /// SPLL clock                     
+    SPLL_CLK = 7,
+    /// RTC_CLKIN clock                
+    RTC_CLKIN_CLK = 8,
+    /// SCG CLK_OUT clock              
+    SCG_CLKOUT_CLK = 9,
+
+    /// SIRCDIV1 functional clock      
+    SIRCDIV1_CLK = 10,
+    /// SIRCDIV2 functional clock      
+    SIRCDIV2_CLK = 11,
+    /// FIRCDIV1 functional clock      
+    FIRCDIV1_CLK = 12,
+    /// FIRCDIV2 functional clock      
+    FIRCDIV2_CLK = 13,
+    /// SOSCDIV1 functional clock      
+    SOSCDIV1_CLK = 14,
+    /// SOSCDIV2 functional clock      
+    SOSCDIV2_CLK = 15,
+    /// SPLLDIV1 functional clock      
+    SPLLDIV1_CLK = 16,
+    /// SPLLDIV2 functional clock      
+    SPLLDIV2_CLK = 17,
+
+    /// End of SCG clocks              
+    SCG_END_OF_CLOCKS = 18,
+
+    /* SIM clocks */
+    /// FTM0 External Clock Pin Select
+    SIM_FTM0_CLOCKSEL = 21,
+    /// FTM1 External Clock Pin Select
+    SIM_FTM1_CLOCKSEL = 22,
+    /// FTM2 External Clock Pin Select
+    SIM_FTM2_CLOCKSEL = 23,
+    /// FTM3 External Clock Pin Select
+    SIM_FTM3_CLOCKSEL = 24,
+    /// CLKOUT Select                  
+    SIM_CLKOUTSELL = 25,
+    /// RTCCLK clock                   
+    SIM_RTCCLK_CLK = 26,
+    /// LPO clock                      
+    SIM_LPO_CLK = 27,
+    /// LPO 1KHz clock                 
+    SIM_LPO_1K_CLK = 28,
+    /// LPO 32KHz clock                
+    SIM_LPO_32K_CLK = 29,
+    /// LPO 128KHz clock               
+    SIM_LPO_128K_CLK = 30,
+    /// EIM clock source               
+    SIM_EIM_CLK = 31,
+    /// ERM clock source               
+    SIM_ERM_CLK = 32,
+    /// DMA clock source               
+    SIM_DMA_CLK = 33,
+    /// MPU clock source               
+    SIM_MPU_CLK = 34,
+    /// MSCM clock source              
+    SIM_MSCM_CLK = 35,
+    /// End of SIM clocks              
+    SIM_END_OF_CLOCKS = 36,
+
+    /* PCC clocks */
+    /// CMP0 clock source              
+    CMP0_CLK = 41,
+    /// CRC0 clock source              
+    CRC0_CLK = 42,
+    /// DMAMUX0 clock source           
+    DMAMUX0_CLK = 43,
+    /// EWM0 clock source              
+    EWM0_CLK = 44,
+    /// PORTA clock source             
+    PORTA_CLK = 45,
+    /// PORTB clock source             
+    PORTB_CLK = 46,
+    /// PORTC clock source             
+    PORTC_CLK = 47,
+    /// PORTD clock source             
+    PORTD_CLK = 48,
+    /// PORTE clock source             
+    PORTE_CLK = 49,
+    /// RTC0 clock source              
+    RTC0_CLK = 50,
+    /// End of BUS clocks              
+    PCC_END_OF_BUS_CLOCKS = 51,
+    /// FlexCAN0 clock source          
+    FlexCAN0_CLK = 52,
+    /// FlexCAN1 clock source          
+    FlexCAN1_CLK = 53,
+    /// FlexCAN2 clock source          
+    FlexCAN2_CLK = 54,
+    /// PDB0 clock source              
+    PDB0_CLK = 55,
+    /// PDB1 clock source              
+    PDB1_CLK = 56,
+    /// End of SYS clocks              
+    PCC_END_OF_SYS_CLOCKS = 57,
+    /// FTFC0 clock source             
+    FTFC0_CLK = 58,
+    /// End of SLOW clocks             
+    PCC_END_OF_SLOW_CLOCKS = 59,
+    /// FTM0 clock source              
+    FTM0_CLK = 60,
+    /// FTM1 clock source              
+    FTM1_CLK = 61,
+    /// FTM2 clock source              
+    FTM2_CLK = 62,
+    /// FTM3 clock source              
+    FTM3_CLK = 63,
+    /// End of ASYNCH DIV1 clocks      
+    PCC_END_OF_ASYNCH_DIV1_CLOCKS = 64,
+    /// ADC0 clock source              
+    ADC0_CLK = 65,
+    /// ADC1 clock source              
+    ADC1_CLK = 66,
+    /// FLEXIO0 clock source           
+    FLEXIO0_CLK = 67,
+    /// LPI2C0 clock source            
+    LPI2C0_CLK = 68,
+    /// LPIT0 clock source             
+    LPIT0_CLK = 69,
+    /// LPSPI0 clock source            
+    LPSPI0_CLK = 70,
+    /// LPSPI1 clock source            
+    LPSPI1_CLK = 71,
+    /// LPSPI2 clock source            
+    LPSPI2_CLK = 72,
+    /// LPTMR0 clock source            
+    LPTMR0_CLK = 73,
+    /// LPUART0 clock source           
+    LPUART0_CLK = 74,
+    /// LPUART1 clock source           
+    LPUART1_CLK = 75,
+    /// LPUART2 clock source           
+    LPUART2_CLK = 76,
+    /// End of ASYNCH DIV2 clocks      
+    PCC_END_OF_ASYNCH_DIV2_CLOCKS = 77,
+    /// End of PCC clocks              
+    PCC_END_OF_CLOCKS = 78,
+    /// The total number of entries    
+    CLOCK_NAME_COUNT = 79,
+}
+
+// /* PCC index offsets */
+const PCC_INVALID_INDEX: u32 = 32;
+const PCC_FTFC_INDEX: u32 = 32;
+const PCC_DMAMUX_INDEX: u32 = 33;
+const PCC_FlexCAN0_INDEX: u32 = 36;
+const PCC_FlexCAN1_INDEX: u32 = 37;
+const PCC_FTM3_INDEX: u32 = 38;
+const PCC_ADC1_INDEX: u32 = 39;
+const PCC_FlexCAN2_INDEX: u32 = 43;
+const PCC_LPSPI0_INDEX: u32 = 44;
+const PCC_LPSPI1_INDEX: u32 = 45;
+const PCC_LPSPI2_INDEX: u32 = 46;
+const PCC_PDB1_INDEX: u32 = 49;
+const PCC_CRC_INDEX: u32 = 50;
+const PCC_PDB0_INDEX: u32 = 54;
+const PCC_LPIT_INDEX: u32 = 55;
+const PCC_FTM0_INDEX: u32 = 56;
+const PCC_FTM1_INDEX: u32 = 57;
+const PCC_FTM2_INDEX: u32 = 58;
+const PCC_ADC0_INDEX: u32 = 59;
+const PCC_RTC_INDEX: u32 = 61;
+const PCC_LPTMR0_INDEX: u32 = 64;
+const PCC_PORTA_INDEX: u32 = 73;
+const PCC_PORTB_INDEX: u32 = 74;
+const PCC_PORTC_INDEX: u32 = 75;
+const PCC_PORTD_INDEX: u32 = 76;
+const PCC_PORTE_INDEX: u32 = 77;
+const PCC_FlexIO_INDEX: u32 = 90;
+const PCC_EWM_INDEX: u32 = 97;
+const PCC_LPI2C0_INDEX: u32 = 102;
+const PCC_LPUART0_INDEX: u32 = 106;
+const PCC_LPUART1_INDEX: u32 = 107;
+const PCC_LPUART2_INDEX: u32 = 108;
+const PCC_CMP0_INDEX: u32 = 115;
+const NUMBERS: &'static [i32] = &[1, 2, 3, 4, 5];
+
+const CLOCKMAPPING: &'static [u32] = &[
+    /// Core clock                      0
+    PCC_INVALID_INDEX,
+    /// Bus clock                       1
+    PCC_INVALID_INDEX,
+    /// Slow clock                      2
+    PCC_INVALID_INDEX,
+    /// CLKOUT clock                    3
+    PCC_INVALID_INDEX,
+    /// SIRC clock                      4
+    PCC_INVALID_INDEX,
+    /// FIRC clock                      5
+    PCC_INVALID_INDEX,
+    /// SOSC clock                      6
+    PCC_INVALID_INDEX,
+    /// SPLL clock                      7
+    PCC_INVALID_INDEX,
+    /// RTC_CLKIN clock                 8
+    PCC_INVALID_INDEX,
+    /// SCG CLK_OUT clock               9
+    PCC_INVALID_INDEX,
+    /// SIRCDIV1 functional clock       10
+    PCC_INVALID_INDEX,
+    /// SIRCDIV2 functional clock       11
+    PCC_INVALID_INDEX,
+    /// FIRCDIV1 functional clock       12
+    PCC_INVALID_INDEX,
+    /// FIRCDIV2 functional clock       13
+    PCC_INVALID_INDEX,
+    /// SOSCDIV1 functional clock       14
+    PCC_INVALID_INDEX,
+    /// SOSCDIV2 functional clock       15
+    PCC_INVALID_INDEX,
+    /// SPLLDIV1 functional clock       16
+    PCC_INVALID_INDEX,
+    /// SPLLDIV2 functional clock       17
+    PCC_INVALID_INDEX,
+    /// End of SCG clocks               18
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 19
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 20
+    PCC_INVALID_INDEX,
+    /// FTM0 External Clock Pin Select  21
+    PCC_INVALID_INDEX,
+    /// FTM1 External Clock Pin Select  22
+    PCC_INVALID_INDEX,
+    /// FTM2 External Clock Pin Select  23
+    PCC_INVALID_INDEX,
+    /// FTM3 External Clock Pin Select  24
+    PCC_INVALID_INDEX,
+    /// CLKOUT Select                   25
+    PCC_INVALID_INDEX,
+    /// CLK32K clock                    26
+    PCC_INVALID_INDEX,
+    /// LPO clock                       27
+    PCC_INVALID_INDEX,
+    /// LPO 1KHz clock                  28
+    PCC_INVALID_INDEX,
+    /// LPO 32KHz clock                 29
+    PCC_INVALID_INDEX,
+    /// LPO 128KHz clock                30
+    PCC_INVALID_INDEX,
+    /// EIM clock source                31
+    PCC_INVALID_INDEX,
+    /// ERM clock source                32
+    PCC_INVALID_INDEX,
+    /// DMA clock source                33
+    PCC_INVALID_INDEX,
+    /// MPU clock source                34
+    PCC_INVALID_INDEX,
+    /// MSCM clock source               35
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 36
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 37
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 38
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 39
+    PCC_INVALID_INDEX,
+    /// No clock entry in clock_names_t 40
+    PCC_INVALID_INDEX,
+    /// CMP0 clock source               41
+    PCC_CMP0_INDEX,
+    /// CRC clock source                42
+    PCC_CRC_INDEX,
+    /// DMAMUX clock source             43
+    PCC_DMAMUX_INDEX,
+    /// EWM clock source                44
+    PCC_EWM_INDEX,
+    /// PORTA clock source              45
+    PCC_PORTA_INDEX,
+    /// PORTB clock source              46
+    PCC_PORTB_INDEX,
+    /// PORTC clock source              47
+    PCC_PORTC_INDEX,
+    /// PORTD clock source              48
+    PCC_PORTD_INDEX,
+    /// PORTE clock source              49
+    PCC_PORTE_INDEX,
+    /// RTC clock source                50
+    PCC_RTC_INDEX,
+    /// End of BUS clocks               51
+    PCC_INVALID_INDEX,
+    /// FlexCAN0 clock source           52
+    PCC_FlexCAN0_INDEX,
+    /// FlexCAN1 clock source           53
+    PCC_FlexCAN1_INDEX,
+    /// FlexCAN2 clock source           54
+    PCC_FlexCAN2_INDEX,
+    /// PDB0 clock source               55
+    PCC_PDB0_INDEX,
+    /// PDB1 clock source               56
+    PCC_PDB1_INDEX,
+    /// End of SYS clocks               57
+    PCC_INVALID_INDEX,
+    /// FTFC clock source               58
+    PCC_FTFC_INDEX,
+    /// End of SLOW clocks              59
+    PCC_INVALID_INDEX,
+    /// FTM0 clock source               60
+    PCC_FTM0_INDEX,
+    /// FTM1 clock source               61
+    PCC_FTM1_INDEX,
+    /// FTM2 clock source               62
+    PCC_FTM2_INDEX,
+    /// FTM3 clock source               63
+    PCC_FTM3_INDEX,
+    /// End of ASYNCH DIV1 clocks       64
+    PCC_INVALID_INDEX,
+    /// ADC0 clock source               65
+    PCC_ADC0_INDEX,
+    /// ADC1 clock source               66
+    PCC_ADC1_INDEX,
+    /// FLEXIO clock source             67
+    PCC_FlexIO_INDEX,
+    /// LPI2C0 clock source             68
+    PCC_LPI2C0_INDEX,
+    /// LPIT clock source               69
+    PCC_LPIT_INDEX,
+    /// LPSPI0 clock source             70
+    PCC_LPSPI0_INDEX,
+    /// LPSPI1 clock source             71
+    PCC_LPSPI1_INDEX,
+    /// LPSPI2 clock source             72
+    PCC_LPSPI2_INDEX,
+    /// LPTMR0 clock source             73
+    PCC_LPTMR0_INDEX,
+    /// LPUART0 clock source            74
+    PCC_LPUART0_INDEX,
+    /// LPUART1 clock source            75
+    PCC_LPUART1_INDEX,
+    /// LPUART2 clock source            76
+    PCC_LPUART2_INDEX,
+    /// End of ASYNCH DIV2 clocks       77
+    PCC_INVALID_INDEX,
+    /// End of PCC clocks               78
+    PCC_INVALID_INDEX,
+];
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockSource {
+    /// Clock is off
+    CLK_SRC_OFF = 0,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC = 1,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC = 2,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC = 3,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL = 6,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC_DIV1 = 7,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC_DIV1 = 8,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC_DIV1 = 9,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL_DIV1 = 10,
+    /// OSCCLK - System Oscillator Bus Clock
+    CLK_SRC_SOSC_DIV2 = 11,
+    /// SCGIRCLK - Slow IRC Clock
+    CLK_SRC_SIRC_DIV2 = 12,
+    /// SCGFIRCLK - Fast IRC Clock
+    CLK_SRC_FIRC_DIV2 = 13,
+    /// SCGPCLK System PLL clock
+    CLK_SRC_SPLL_DIV2 = 14,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockFrac {
+    /// Fractional value is zero
+    MULTIPLY_BY_ONE = 0x00,
+    /// Fractional value is one            
+    MULTIPLY_BY_TWO = 0x01,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum PeripheralClockDiv {
+    /// Divide by 1 (pass-through, no clock divide)
+    DIVIDE_BY_ONE = 0x00,
+    /// Divide by 2
+    DIVIDE_BY_TWO = 0x01,
+    /// Divide by 3
+    DIVIDE_BY_THREE = 0x02,
+    /// Divide by 4
+    DIVIDE_BY_FOR = 0x03,
+    /// Divide by 5
+    DIVIDE_BY_FIVE = 0x04,
+    /// Divide by 6
+    DIVIDE_BY_SIX = 0x05,
+    /// Divide by 7
+    DIVIDE_BY_SEVEN = 0x06,
+    /// Divide by 8 */      
+    DIVIDE_BY_EIGTH = 0x07,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct PeripheralClockConfig {
+    pub clockName: PeripheralClockName,
+    /// Peripheral clock gate.                     
+    pub clkGate: bool,
+    /// Peripheral clock source.                   
+    pub clkSrc: PeripheralClockSource,
+    /// Peripheral clock fractional value.         
+    pub frac: PeripheralClockFrac,
+    /// Peripheral clock divider value.            
+    pub divider: PeripheralClockDiv,
 }
 
 static mut g_xtal0ClkFreq: u32 = 0;
@@ -1256,6 +1718,7 @@ pub struct Spc {
     SmcBase: StaticRef<SmcRegisters>,
     PmcBase: StaticRef<PmcRegisters>,
     SimBase: StaticRef<SimRegisters>,
+    PccNBase: StaticRef<PCCnRegisters>,
 }
 
 // pub const FEATURE_SCG_SIRC_HIGH_RANGE_FREQ (8000000U)
@@ -1267,6 +1730,7 @@ impl Spc {
             SmcBase: SMC_BASE,
             PmcBase: PMC_BASE,
             SimBase: SIM_BASE,
+            PccNBase: PCC_BASE,
         }
     }
 
@@ -1903,7 +2367,39 @@ impl Spc {
             }
         }
     }
-    fn CLOCK_SYS_SetPccConfiguration(&self, pccconfig: PCCConfig) {}
+    fn PCC_SetClockMode(&self, pccconfig: PeripheralClockConfig, enable: bool) {
+        // self.PccNBase.pccn[CLOCKMAPPING[41] as u32].modify(PCC_FIELDS::SGC.val(enable as u32));
+        let clockIndex: u32 = 76;
+        self.PccNBase.pccn[76].modify(PCC_FIELDS::SGC.val(enable as u32));
+    }
+    fn PCC_SetPeripheralClockControl(
+        &self,
+        clockName: PeripheralClockName,
+        clkGate: bool,
+        clkSrc: PeripheralClockSource,
+        frac: PeripheralClockFrac,
+        divider: PeripheralClockDiv,
+    ) {
+        // self.PccNBase.pccn[CLOCKMAPPING[41] as u32].write(
+        self.PccNBase.pccn[76].write(
+            PCC_FIELDS::PCS.val(clkSrc as u32)
+                + PCC_FIELDS::FRAC.val(frac as u32)
+                + PCC_FIELDS::PCD.val(divider as u32)
+                + PCC_FIELDS::SGC.val(clkGate as u32),
+        );
+    }
+    fn CLOCK_SYS_SetPccConfiguration(&self, pccconfig: PCCConfig, num: u32) {
+        for clockconfig in pccconfig.perclockconfig {
+            self.PCC_SetClockMode(clockconfig, false);
+            self.PCC_SetPeripheralClockControl(
+                clockconfig.clockName,
+                clockconfig.clkGate,
+                clockconfig.clkSrc,
+                clockconfig.frac,
+                clockconfig.divider,
+            );
+        }
+    }
 
     fn PMC_SetLpoMode(&self, enable: bool) {
         self.PmcBase.regsc.modify(REGSC::LPODIS.val(enable as u8));
@@ -1943,7 +2439,7 @@ impl Spc {
                 self.CLOCK_SYS_SetSimConfiguration(config.simconfig);
 
                 // /* Set PCC settings. */
-                // self.CLOCK_SYS_SetPccConfiguration(config.pccconfig);
+                self.CLOCK_SYS_SetPccConfiguration(config.pccconfig, config.pccconfig.numberofper);
 
                 // /* Set PMC settings. */
                 self.CLOCK_SYS_SetPmcConfiguration(config.pmcconfig);
