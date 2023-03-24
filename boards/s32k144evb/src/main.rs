@@ -308,7 +308,16 @@ unsafe fn clk_initialize(peripherals: &S32k14xDefaultPeripherals) {
         },
     };
 
-    let pmcConfig: spc::PMCConfig = spc::PMCConfig {};
+    let pmcConfig: spc::PMCConfig = spc::PMCConfig {
+        lpoClockConfig: spc::PmcLpoClockConfig {
+            /// Initialize    
+            initialize: true,  
+            /// Enable/disable LPO     
+            enable: true, 
+            /// Trimming value for LPO 
+            trimValue: 0, 
+        },
+    };
 
     let scgConfig: spc::SCGConfig = spc::SCGConfig {
         sircConfig: sircConfig,

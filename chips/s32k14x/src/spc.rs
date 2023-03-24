@@ -1188,10 +1188,22 @@ pub struct SIMConfig {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct PCCConfig {}
+pub struct PmcLpoClockConfig {
+    /// Initialize or not the PMC LPO settings.
+    pub initialize: bool,
+    /// Enable/disable LPO     
+    pub enable: bool,
+    /// LPO trimming value     
+    pub trimValue: u8,
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct PMCConfig {}
+pub struct PMCConfig {
+    pub lpoClockConfig: PmcLpoClockConfig,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct PCCConfig {}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct CLKUserConfig {
@@ -1759,22 +1771,13 @@ impl Spc {
 
     fn SIM_SetClockout(&self, enable: bool, source: SIMClockOutSource, div: SIMClockOutDiv) {
         self.SimBase.chipctl.modify(CHIPCTL::CLKOUTEN::CLEAR);
-        self.SimBase.chipctl.write(
+        self.SimBase.chipctl.modify(
             CHIPCTL::CLKOUTEN.val(enable as u32)
                 + CHIPCTL::CLKOUTSEL.val(source as u32)
                 + CHIPCTL::CLKOUTDIV.val(div as u32),
         );
     }
-    // /// Initialize or not the LPO clock.
-    // pub initialize: bool,
-    // /// RTC_CLK source select.
-    // pub sourceRtcClk: SimRtcClockSel,
-    // /// LPO clock source select.
-    // pub sourceLpoClk: SimLpoClockSel,
-    // /// MSCM Clock Gating Control enable.
-    // pub enableLpo32k: bool,
-    // /// MSCM Clock Gating Control enable.
-    // pub enableLpo1k: bool,
+
     fn SIM_SetLpoClocks(
         &self,
         enableLpo1k: bool,
@@ -1782,7 +1785,7 @@ impl Spc {
         sourceRtc: SimLpoClockSel,
         sourceLpo: SimRtcClockSel,
     ) {
-        self.SimBase.lpoclks.write(
+        self.SimBase.lpoclks.modify(
             LPOCLKS::LPO1KCLKEN.val(enableLpo1k as u32)
                 + LPOCLKS::LPO32KCLKEN.val(enableLpo32k as u32)
                 + LPOCLKS::LPOCLKSEL.val(sourceLpo as u32)
@@ -1834,7 +1837,7 @@ impl Spc {
             .modify(CHIPCTL::TRACECLK_SEL.val(source as u32));
     }
     fn SIM_SetTraceClockConfig(&self, enable: bool, divider: u8, mult: bool) {
-        self.SimBase.clkdiv4.write(
+        self.SimBase.clkdiv4.modify(
             CLKDIV4::TRACEDIVEN.val(enable as u32)
                 + CLKDIV4::TRACEDIV.val(divider as u32)
                 + CLKDIV4::TRACEFRAC.val(mult as u32),
@@ -1901,7 +1904,34 @@ impl Spc {
         }
     }
     fn CLOCK_SYS_SetPccConfiguration(&self, pccconfig: PCCConfig) {}
-    fn CLOCK_SYS_SetPmcConfiguration(&self, pmcconfig: PMCConfig) {}
+
+    fn PMC_SetLpoMode(&self, enable: bool) {
+        self.PmcBase.regsc.modify(REGSC::LPODIS.val(enable as u8));
+    }
+
+    fn PMC_SetLpoTrimValue(&self, decimalValue: u8) {
+        let mut decVale: i8 = decimalValue as i8;
+        let mut lpoTrim: i8 = 0;
+        let mut trimValue: u8 = 0;
+        if decVale < 0 {
+            lpoTrim = 1 << 5;
+            decVale = decVale + lpoTrim as i8;
+        }
+        trimValue = decVale as u8;
+        self.PmcBase
+            .lpotrim
+            .modify(LPOTRIM::LPOTRIM.val(decVale as u8));
+    }
+
+    fn CLOCK_SYS_SetPmcConfiguration(&self, pmcconfig: PMCConfig) {
+        /* Low Power Clock settings from PMC. */
+        if pmcconfig.lpoClockConfig.initialize == true {
+            /* Enable/disable the low power oscillator. */
+            self.PMC_SetLpoMode(pmcconfig.lpoClockConfig.enable);
+            /* Write trimming value. */
+            self.PMC_SetLpoTrimValue(pmcconfig.lpoClockConfig.trimValue);
+        }
+    }
     pub fn init(&self, config: CLKUserConfig) {
         let CurRunningMode = self.CLOCK_SYS_GetCurrentRunMode();
         match CurRunningMode {
@@ -1910,13 +1940,13 @@ impl Spc {
                 self.CLOCK_SYS_SetScgConfiguration(config.scgconfig);
 
                 /* Set SIM settings. */
-                // self.CLOCK_SYS_SetSimConfiguration(config.simconfig);
+                self.CLOCK_SYS_SetSimConfiguration(config.simconfig);
 
                 // /* Set PCC settings. */
                 // self.CLOCK_SYS_SetPccConfiguration(config.pccconfig);
 
                 // /* Set PMC settings. */
-                // self.CLOCK_SYS_SetPmcConfiguration(config.pmcconfig);
+                self.CLOCK_SYS_SetPmcConfiguration(config.pmcconfig);
             }
             SysRunMode::SCG_SYSTEM_CLOCK_MODE_VLPR => {
                 unreachable!("Unimplemented!!!");
