@@ -156,12 +156,22 @@ pub struct Sim {
     registers: StaticRef<SimRegisters>,
 }
 
-pub const PCC_PCCn_COUNT: u32 = 122;
+pub const PCC_PCCn_COUNT: usize = 122;
+
+#[repr(C)]
+struct PCCnChannel([ReadWrite<u32, PCC_FIELDS::Register>; PCC_PCCn_COUNT]);
+
+impl Index<usize> for PCCnChannel {
+    type Output = ReadWrite<u32, PCC_FIELDS::Register>;
+    fn index(&self, channel: usize) -> &ReadWrite<u32, PCC_FIELDS::Register> {
+        &self.0[channel]
+    }
+}
 
 #[repr(C)]
 /// Pcc Register
 struct PCCnRegisters {
-    pub pccn: [ReadWrite<u32, PCC_FIELDS::Register>; 122],
+    pub pccn: PCCnChannel,
 }
 const PCC_BASE: StaticRef<PCCnRegisters> =
     unsafe { StaticRef::new(0x4006_5000 as *const PCCnRegisters) };
@@ -1263,47 +1273,47 @@ pub enum SysRunMode {
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum PeripheralClockName {
     /* Main clocks */
-    /// Core clock                     
+    /// Core clock
     CORE_CLK = 0,
-    /// Bus clock                      
+    /// Bus clock
     BUS_CLK = 1,
-    /// Slow clock                     
+    /// Slow clock
     SLOW_CLK = 2,
-    /// CLKOUT clock                   
+    /// CLKOUT clock
     CLKOUT_CLK = 3,
 
     /* Other internal clocks used by peripherals. */
-    /// SIRC clock                     
+    /// SIRC clock
     SIRC_CLK = 4,
-    /// FIRC clock                     
+    /// FIRC clock
     FIRC_CLK = 5,
-    /// SOSC clock                     
+    /// SOSC clock
     SOSC_CLK = 6,
-    /// SPLL clock                     
+    /// SPLL clock
     SPLL_CLK = 7,
-    /// RTC_CLKIN clock                
+    /// RTC_CLKIN clock
     RTC_CLKIN_CLK = 8,
-    /// SCG CLK_OUT clock              
+    /// SCG CLK_OUT clock
     SCG_CLKOUT_CLK = 9,
 
-    /// SIRCDIV1 functional clock      
+    /// SIRCDIV1 functional clock
     SIRCDIV1_CLK = 10,
-    /// SIRCDIV2 functional clock      
+    /// SIRCDIV2 functional clock
     SIRCDIV2_CLK = 11,
-    /// FIRCDIV1 functional clock      
+    /// FIRCDIV1 functional clock
     FIRCDIV1_CLK = 12,
-    /// FIRCDIV2 functional clock      
+    /// FIRCDIV2 functional clock
     FIRCDIV2_CLK = 13,
-    /// SOSCDIV1 functional clock      
+    /// SOSCDIV1 functional clock
     SOSCDIV1_CLK = 14,
-    /// SOSCDIV2 functional clock      
+    /// SOSCDIV2 functional clock
     SOSCDIV2_CLK = 15,
-    /// SPLLDIV1 functional clock      
+    /// SPLLDIV1 functional clock
     SPLLDIV1_CLK = 16,
-    /// SPLLDIV2 functional clock      
+    /// SPLLDIV2 functional clock
     SPLLDIV2_CLK = 17,
 
-    /// End of SCG clocks              
+    /// End of SCG clocks
     SCG_END_OF_CLOCKS = 18,
 
     /* SIM clocks */
@@ -1315,29 +1325,29 @@ pub enum PeripheralClockName {
     SIM_FTM2_CLOCKSEL = 23,
     /// FTM3 External Clock Pin Select
     SIM_FTM3_CLOCKSEL = 24,
-    /// CLKOUT Select                  
+    /// CLKOUT Select
     SIM_CLKOUTSELL = 25,
-    /// RTCCLK clock                   
+    /// RTCCLK clock
     SIM_RTCCLK_CLK = 26,
-    /// LPO clock                      
+    /// LPO clock
     SIM_LPO_CLK = 27,
-    /// LPO 1KHz clock                 
+    /// LPO 1KHz clock
     SIM_LPO_1K_CLK = 28,
-    /// LPO 32KHz clock                
+    /// LPO 32KHz clock
     SIM_LPO_32K_CLK = 29,
-    /// LPO 128KHz clock               
+    /// LPO 128KHz clock
     SIM_LPO_128K_CLK = 30,
-    /// EIM clock source               
+    /// EIM clock source
     SIM_EIM_CLK = 31,
-    /// ERM clock source               
+    /// ERM clock source
     SIM_ERM_CLK = 32,
-    /// DMA clock source               
+    /// DMA clock source
     SIM_DMA_CLK = 33,
-    /// MPU clock source               
+    /// MPU clock source
     SIM_MPU_CLK = 34,
-    /// MSCM clock source              
+    /// MSCM clock source
     SIM_MSCM_CLK = 35,
-    /// End of SIM clocks              
+    /// End of SIM clocks
     SIM_END_OF_CLOCKS = 36,
 
     /* PCC clocks */
@@ -2369,8 +2379,9 @@ impl Spc {
     }
     fn PCC_SetClockMode(&self, pccconfig: PeripheralClockConfig, enable: bool) {
         // self.PccNBase.pccn[CLOCKMAPPING[41] as u32].modify(PCC_FIELDS::SGC.val(enable as u32));
-        let clockIndex: u32 = 76;
-        self.PccNBase.pccn[76].modify(PCC_FIELDS::SGC.val(enable as u32));
+        let clockIndex: u32 = CLOCKMAPPING[pccconfig.clockName as usize];
+        self.PccNBase.pccn[(clockIndex as u32).try_into().unwrap()]
+            .modify(PCC_FIELDS::SGC.val(enable as u32));
     }
     fn PCC_SetPeripheralClockControl(
         &self,
@@ -2380,8 +2391,8 @@ impl Spc {
         frac: PeripheralClockFrac,
         divider: PeripheralClockDiv,
     ) {
-        // self.PccNBase.pccn[CLOCKMAPPING[41] as u32].write(
-        self.PccNBase.pccn[76].write(
+        let clockIndex: u32 = CLOCKMAPPING[clockName as usize];
+        self.PccNBase.pccn[(clockIndex as u32).try_into().unwrap()].modify(
             PCC_FIELDS::PCS.val(clkSrc as u32)
                 + PCC_FIELDS::FRAC.val(frac as u32)
                 + PCC_FIELDS::PCD.val(divider as u32)
