@@ -634,7 +634,16 @@ impl Pcc {
         };
         // self.registers.pcc_lpit.modify(PCC_FIELDS::PCS::SIRC);
     }
-    pub fn PCC_SetClockMode(&self, clockname: PeripheralClockName, enable: bool) {}
+
+    /// Set the UART clock divider
+    ///
+    /// `divider` is a value bound by [1, 2^6].
+    pub fn set_uart_clock_podf(&self, divider: u32) {
+        let divider = divider.max(1).min(1 << 6) - 1;
+        // self.registers
+        //     .cscdr1
+        //     .modify(CSCDR1::UART_CLK_PODF.val(divider as u32));
+    }
 }
 
 /// Periodic clock selection for GPTs and PITs

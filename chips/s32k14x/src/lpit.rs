@@ -340,7 +340,7 @@ impl<'a, F: hil::time::Frequency> hil::time::Alarm<'a> for Lpit<'a, F> {
         }
 
         let _ = self.disarm();
-        self.registers.tmr[0].tval.set(expire.into_u32());
+        //self.registers.tmr[0].tval.set(expire.into_u32());
         // self.registers.ir.modify(IR::OF1IE::SET);
     }
 

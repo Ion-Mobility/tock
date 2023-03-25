@@ -639,33 +639,15 @@ impl U32Ext for u32 {
 
 impl<'a> Pin<'a> {
     /// Fabricate a new `Pin` from a `PinId`
-    // pub fn from_pin_id(pin_id: PinId) -> Self {
-    //     Self::new(
-    //         match pin_id.port() {
-    //             GpioPort::GPIO1 => {
-    //                 GPIO1_BASE,
-    //                 IOA_BASE
-    //             }
-    //             GpioPort::GPIO2 => {
-    //                 GPIO2_BASE,
-    //                 IOB_BASE
-    //             }
-    //             GpioPort::GPIO3 => {
-    //                 GPIO3_BASE,
-    //                 IOC_BASE
-    //             }
-    //             GpioPort::GPIO4 => {
-    //                 GPIO4_BASE,
-    //                 IOD_BASE
-    //             }
-    //             GpioPort::GPIO5 => {
-    //                 GPIO5_BASE,
-    //                 IOE_BASE
-    //             }
-    //         },
-    //         pin_id.offset(),
-    //     )
-    // }
+    pub fn from_pin_id(pin_id: PinId) -> Self {
+        match pin_id.port() {
+            GpioPort::GPIO1 => Self::new(GPIO1_BASE, IOA_BASE, pin_id.offset()),
+            GpioPort::GPIO2 => Self::new(GPIO2_BASE, IOB_BASE, pin_id.offset()),
+            GpioPort::GPIO3 => Self::new(GPIO3_BASE, IOC_BASE, pin_id.offset()),
+            GpioPort::GPIO4 => Self::new(GPIO4_BASE, IOD_BASE, pin_id.offset()),
+            GpioPort::GPIO5 => Self::new(GPIO5_BASE, IOE_BASE, pin_id.offset()),
+        }
+    }
     const fn new(
         registers: StaticRef<GpioRegisters>,
         io: StaticRef<IoRegisters>,

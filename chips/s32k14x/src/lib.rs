@@ -1,6 +1,6 @@
-//! Peripheral implementations for the s32k14x MCU.
+//! Peripheral implementations for the S32K144 and S32K148 MCUs.
 //!
-//! STM32F446RE: <https://www.st.com/en/microcontrollers/stm32f4.html>
+//! S32K14x chip: <https://www.nxp.com/docs/en/data-sheet/S32K-DS.pdf>
 
 #![crate_name = "s32k14x"]
 #![crate_type = "rlib"]
@@ -9,15 +9,12 @@
 pub mod chip;
 pub mod dma;
 pub mod gpio;
+pub mod lpit;
+pub mod lpuart;
 pub mod nvic;
 pub mod pcc;
-pub mod wdt;
-pub mod lpuart;
-pub mod lpit;
 pub mod spc;
-// Peripherals
-// pub mod deferred_calls;
-//pub mod gpio;
+pub mod wdt;
 
 use cortexm4::{initialize_ram_jump_to_main, unhandled_interrupt, CortexM4, CortexMVariant};
 
@@ -146,6 +143,6 @@ pub static IRQS: [unsafe extern "C" fn(); 89] = [
 
 pub unsafe fn init() {
     cortexm4::nvic::disable_all();
-    // cortexm4::nvic::clear_all_pending();
-    // cortexm4::nvic::enable_all();
+    cortexm4::nvic::clear_all_pending();
+    cortexm4::nvic::enable_all();
 }

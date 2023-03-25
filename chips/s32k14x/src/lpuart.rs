@@ -784,7 +784,104 @@ impl<'a> Lpuart<'a> {
         Ok(())
     }
 }
+impl<'a> hil::uart::Transmit<'a> for Lpuart<'a> {
+    fn set_transmit_client(&self, client: &'a dyn hil::uart::TransmitClient) {
+        self.tx_client.set(client);
+    }
 
+    fn transmit_buffer(
+        &self,
+        tx_data: &'static mut [u8],
+        tx_len: usize,
+    ) -> Result<(), (ErrorCode, &'static mut [u8])> {
+        if self.tx_dma_channel.is_some() {
+            self.transmit_buffer_dma(tx_data, tx_len)
+        } else {
+            self.transmit_buffer_interrupt(tx_data, tx_len)
+        }
+    }
+
+    fn transmit_word(&self, _word: u32) -> Result<(), ErrorCode> {
+        // TODO implement for interrupt-, DMA-based transmits.
+        Err(ErrorCode::FAIL)
+    }
+
+    fn transmit_abort(&self) -> Result<(), ErrorCode> {
+        if self.tx_dma_channel.is_some() {
+            self.transmit_abort_dma()
+        } else {
+            self.transmit_abort_interrupt()
+        }
+    }
+}
+
+impl<'a> hil::uart::Configure for Lpuart<'a> {
+    fn configure(&self, params: hil::uart::Parameters) -> Result<(), ErrorCode> {
+        if params.baud_rate != 115200
+            || params.stop_bits != hil::uart::StopBits::One
+            || params.parity != hil::uart::Parity::None
+            || params.hw_flow_control != false
+            || params.width != hil::uart::Width::Eight
+        {
+            panic!(
+                "Currently we only support uart setting of 115200bps 8N1, no hardware flow control"
+            );
+        }
+
+        self.enable_clock();
+        // Reset the LPUART using software
+        self.registers.global.modify(GLOBAL::RST::SET);
+        self.registers.global.modify(GLOBAL::RST::CLEAR);
+
+        // Enable Bothedge sampling
+        self.registers.baud.modify(BAUD::BOTHEDGE::SET);
+
+        // Set Oversampling Ratio to 5 (the value written is -1)
+        self.registers.baud.modify(BAUD::OSR.val(0b100 as u32));
+
+        // Set the Baud Rate Modulo Divisor
+        self.registers.baud.modify(BAUD::SBR.val(139 as u32));
+
+        // Set bit count and parity mode
+        self.registers.baud.modify(BAUD::M10::CLEAR);
+
+        self.registers.ctrl.modify(CTRL::PE::CLEAR);
+        self.registers.ctrl.modify(CTRL::PT::CLEAR);
+        self.registers.ctrl.modify(CTRL::M::CLEAR);
+        self.registers.ctrl.modify(CTRL::ILT::CLEAR);
+        self.registers.ctrl.modify(CTRL::IDLECFG::CLEAR);
+
+        // Set 1 stop bit
+        self.registers.baud.modify(BAUD::SBNS::CLEAR);
+
+        // Clear RX and TX watermarks
+        self.registers.water.modify(WATER::RXWATER::CLEAR);
+        self.registers.water.modify(WATER::TXWATER::CLEAR);
+
+        // Disable TX and RX FIFO
+        self.registers.fifo.modify(FIFO::TXFE::CLEAR);
+        self.registers.fifo.modify(FIFO::RXFE::CLEAR);
+
+        // Flush RX FIFO and TX FIFO
+        self.registers.fifo.modify(FIFO::TXFLUSH::SET);
+        self.registers.fifo.modify(FIFO::RXFLUSH::SET);
+
+        self.clear_status();
+
+        // Set the CTS configuration/TX CTS source.
+        self.registers.modir.modify(MODIR::TXCTSC::CLEAR);
+        self.registers.modir.modify(MODIR::TXCTSSRC::CLEAR);
+
+        // Set as LSB
+        self.registers.stat.modify(STAT::MSBF::CLEAR);
+
+        // Enable TX and RX over LPUART
+        self.registers.ctrl.modify(CTRL::TE::SET);
+        self.registers.ctrl.modify(CTRL::RE::SET);
+
+        Ok(())
+    }
+}
 impl<'a> hil::uart::Receive<'a> for Lpuart<'a> {
     fn set_receive_client(&self, client: &'a dyn hil::uart::ReceiveClient) {
         self.rx_client.set(client);

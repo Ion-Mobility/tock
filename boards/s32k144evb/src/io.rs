@@ -1,14 +1,16 @@
 use core::fmt::Write;
 use core::panic::PanicInfo;
 
-use cortexm4;
-
 use kernel::debug;
 use kernel::debug::IoWrite;
+use kernel::hil::led;
+use kernel::hil::uart;
+use kernel::hil::uart::Configure;
 
-use s32k14x;
+use crate::s32k144;
+use s32k144::gpio::PinId;
 
-// use crate::CHIP;
+use crate::CHIP;
 use crate::PROCESSES;
 use crate::PROCESS_PRINTER;
 
@@ -21,8 +23,7 @@ pub struct Writer {
 pub static mut WRITER: Writer = Writer { initialized: false };
 
 impl Writer {
-    /// Indicate that USART has already been initialized. Trying to double
-    /// initialize USART1 causes stm32f429zi to go into in in-deterministic state.
+    /// Indicate that LPUART has already been initialized.
     pub fn set_initialized(&mut self) {
         self.initialized = true;
     }
@@ -37,35 +38,43 @@ impl Write for Writer {
 
 impl IoWrite for Writer {
     fn write(&mut self, buf: &[u8]) {
+        let pcc = crate::s32k144::pcc::Pcc::new();
+        let uart = s32k144::lpuart::Lpuart::new_lpuart1(&pcc);
+
+        if !self.initialized {
+            self.initialized = true;
+
+            let _ = uart.configure(uart::Parameters {
+                baud_rate: 115200,
+                stop_bits: uart::StopBits::One,
+                parity: uart::Parity::None,
+                hw_flow_control: false,
+                width: uart::Width::Eight,
+            });
+        }
+
+        for &c in buf {
+            uart.send_byte(c);
+        }
     }
 }
 
 /// Panic handler.
 #[no_mangle]
 #[panic_handler]
-pub unsafe fn panic_handler_fn(info: &PanicInfo) -> ! {
-    loop{}
+pub unsafe extern "C" fn panic_fmt(info: &PanicInfo) -> ! {
+    // User Led is connected to AdB0_09
+    let pin = s32k144::gpio::Pin::from_pin_id(PinId::Ptd00);
+    let led = &mut led::LedLow::new(&pin);
+    let writer = &mut WRITER;
+
+    debug::panic(
+        &mut [led],
+        writer,
+        info,
+        &cortexm4::support::nop,
+        &PROCESSES,
+        &CHIP,
+        &PROCESS_PRINTER,
+    )
 }
-// pub unsafe extern "C" fn panic_fmt(info: &PanicInfo) -> ! {
-//     // User LD4 is connected to PG14
-//     // Have to reinitialize several peripherals because otherwise can't access them here.
-//     // let rcc = stm32f429zi::rcc::Rcc::new();
-//     // let syscfg = stm32f429zi::syscfg::Syscfg::new(&rcc);
-//     // let exti = stm32f429zi::exti::Exti::new(&syscfg);
-//     // let pin = stm32f429zi::gpio::Pin::new(PinId::PG14, &exti);
-//     // let gpio_ports = stm32f429zi::gpio::GpioPorts::new(&rcc, &exti);
-//     // pin.set_ports_ref(&gpio_ports);
-//     // let led = &mut led::LedHigh::new(&pin);
-
-//     let writer = &mut WRITER;
-
-//     debug::panic(
-//         &None,
-//         writer,
-//         info,
-//         &cortexm4::support::nop,
-//         &PROCESSES,
-//         &None,
-//         &PROCESS_PRINTER,
-//     )
-// }
