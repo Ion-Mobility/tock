@@ -148,6 +148,7 @@ unsafe fn set_pin_primary_functions(
     // // Values set accordingly to the evkbimxrt1050_iled_blinky SDK example
     // Configuring the GPIO_AD_B0_09 as output
     let pin = peripherals.ports.pin(PinId::Ptd00);
+    pin.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     pin.make_output();
     kernel::debug::assign_gpios(Some(pin), None, None);
 
@@ -164,6 +165,7 @@ unsafe fn set_pin_primary_functions(
     uartrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
 
     // Configuring the IOMUXC_SNVS_WAKEUP pin as input
+    peripherals.ports.pin(PinId::Ptc12).pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     peripherals.ports.pin(PinId::Ptc12).make_input();
 }
 

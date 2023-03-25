@@ -443,7 +443,7 @@ impl<'a> Lpuart<'a> {
 
     pub fn set_baud(&self) {
         // Set the Baud Rate Modulo Divisor
-        self.registers.baud.modify(BAUD::SBR.val(139 as u32));
+        self.registers.baud.modify(BAUD::SBR.val(3 as u32)+ BAUD::OSR.val(22 as u32));
     }
 
     // for use by panic in io.rs
@@ -837,10 +837,10 @@ impl<'a> hil::uart::Configure for Lpuart<'a> {
         self.registers.baud.modify(BAUD::BOTHEDGE::SET);
 
         // Set Oversampling Ratio to 5 (the value written is -1)
-        self.registers.baud.modify(BAUD::OSR.val(0b100 as u32));
+        self.registers.baud.modify(BAUD::OSR.val(0b10110 as u32));
 
         // Set the Baud Rate Modulo Divisor
-        self.registers.baud.modify(BAUD::SBR.val(139 as u32));
+        self.registers.baud.modify(BAUD::SBR.val(3 as u32));
 
         // Set bit count and parity mode
         self.registers.baud.modify(BAUD::M10::CLEAR);

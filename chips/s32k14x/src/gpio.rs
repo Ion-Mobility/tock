@@ -757,8 +757,22 @@ impl<'a> Pin<'a> {
         //     self.registers.icr2.set(icr2);
         // }
     }
+    fn pin_offset_to_num(&self, offset: usize) -> u32 {
+        let mut pin_num = 1;
+        let mut pin_off = offset;
+        loop {
+            pin_off >>= 1;
+            if pin_off != 0 {
+                pin_num += 1;
+            } else {
+                break;
+            }
+        }
+        pin_num
+    }
     pub fn pin_make_function(&self, mode: PinMuxFunction) {
-        self.registers.pcr[0].write(PCR::MUX.val(mode as u32));
+        let pin_num = self.pin_offset_to_num(self.offset);
+        self.registers.pcr[self.offset as usize].write(PCR::MUX.val(mode as u32));
     }
 }
 
