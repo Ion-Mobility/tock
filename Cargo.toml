@@ -44,6 +44,7 @@ members = [
     "boards/swervolf",
     "boards/weact_f401ccu6/",
     "boards/s32k144evb/",
+    "boards/gridania-tel/",
     "capsules",
     "chips/apollo3",
     "chips/arty_e21_chip",
