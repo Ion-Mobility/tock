@@ -338,6 +338,30 @@ pub enum PinId {
     Pte31 = gpio_id(GpioPort::GPIO5, 31),
 }
 
+pub enum PinMuxFunction {
+    /// corresponding pin is disabled, but is used as an analog pin
+    PORT_PIN_DISABLED = 0,
+    /// corresponding pin is configured as GPIO                    
+    PORT_MUX_AS_GPIO = 1,
+    /// chip-specific                                              
+    PORT_MUX_ALT2 = 2,
+    /// chip-specific                                              
+    PORT_MUX_ALT3 = 3,
+    /// chip-specific                                              
+    PORT_MUX_ALT4 = 4,
+    /// chip-specific                                              
+    PORT_MUX_ALT5 = 5,
+    /// chip-specific                                              
+    PORT_MUX_ALT6 = 6,
+    /// chip-specific                                              
+    PORT_MUX_ALT7 = 7,
+    // when selected, ADC Interleaved channel is connected to current pin
+    // and disconnected to opposed pin
+    //  ADC1_SE14-PTB15 | ADC1_SE15-PTB16 | ADC0_SE8-PTC0  | ADC0_SE9-PTC1
+    //  ADC1_SE14-PTB0  | ADC1_SE15-PTB1  | ADC0_SE8-PTB13 | ADC0_SE9-PTB14
+    PORT_MUX_ADC_INTERLEAVE = 8,
+}
+
 impl PinId {
     /// Returns the port
     fn port(self) -> GpioPort {
@@ -499,50 +523,35 @@ impl<'a> Port<'a, 32> {
         Self::new_32(
             GPIO1_BASE,
             IOA_BASE,
-            PortClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccPORTAGate,
-            )),
+            PortClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccPORTAGate)),
         )
     }
     const fn gpio2(pcc: &'a pcc::Pcc) -> GPIO2<'a> {
         Self::new_32(
             GPIO2_BASE,
             IOB_BASE,
-            PortClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccPORTBGate,
-            )),
+            PortClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccPORTBGate)),
         )
     }
     const fn gpio3(pcc: &'a pcc::Pcc) -> GPIO3<'a> {
         Self::new_32(
             GPIO3_BASE,
             IOC_BASE,
-            PortClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccPORTCGate,
-            )),
+            PortClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccPORTCGate)),
         )
     }
     const fn gpio4(pcc: &'a pcc::Pcc) -> GPIO4<'a> {
         Self::new_32(
             GPIO4_BASE,
             IOD_BASE,
-            PortClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccPORTDGate,
-            )),
+            PortClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccPORTDGate)),
         )
     }
     const fn gpio5(pcc: &'a pcc::Pcc) -> GPIO5<'a> {
         Self::new_32(
             GPIO5_BASE,
             IOE_BASE,
-            PortClock(pcc::PeripheralClock::new(
-                pcc,
-                pcc::ClockGate::PccPORTEGate,
-            )),
+            PortClock(pcc::PeripheralClock::new(pcc, pcc::ClockGate::PccPORTEGate)),
         )
     }
 }
@@ -747,6 +756,9 @@ impl<'a> Pin<'a> {
         //     let icr2 = (icr2 & !icr_mask) | sensitive;
         //     self.registers.icr2.set(icr2);
         // }
+    }
+    pub fn pin_make_function(&self, mode: PinMuxFunction) {
+        self.registers.pcr[0].write(PCR::MUX.val(mode as u32));
     }
 }
 

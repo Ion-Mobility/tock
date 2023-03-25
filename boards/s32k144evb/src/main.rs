@@ -136,6 +136,7 @@ unsafe fn set_pin_primary_functions(
     peripherals: &'static s32k144::chip::S32k14xDefaultPeripherals,
 ) {
     use s32k144::gpio::PinId;
+    use s32k144::gpio::PinMuxFunction;
 
     peripherals.ports.gpio1.enable_clock();
     peripherals.ports.gpio2.enable_clock();
@@ -157,6 +158,10 @@ unsafe fn set_pin_primary_functions(
     //     Sion::Disabled,
     //     0,
     // );
+    let uarttxpin = s32k144::gpio::Pin::from_pin_id(PinId::Ptc07);
+    let uartrxpin = s32k144::gpio::Pin::from_pin_id(PinId::Ptc06);
+    uarttxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
+    uartrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
 
     // Configuring the IOMUXC_SNVS_WAKEUP pin as input
     peripherals.ports.pin(PinId::Ptc12).make_input();
@@ -165,7 +170,7 @@ unsafe fn set_pin_primary_functions(
 /// Helper function for miscellaneous peripheral functions
 unsafe fn setup_peripherals(peripherals: &s32k144::chip::S32k14xDefaultPeripherals) {
     // LPUART1 IRQn is 20
-    cortexm4::nvic::Nvic::new(s32k144::nvic::LPUART0_RXTX_IRQN).enable();
+    // cortexm4::nvic::Nvic::new(s32k144::nvic::LPUART0_RXTX_IRQN).enable();
 
     // TIM2 IRQn is 28
     // peripherals.lpit1.enable_clock();
@@ -173,7 +178,7 @@ unsafe fn setup_peripherals(peripherals: &s32k144::chip::S32k14xDefaultPeriphera
     //     peripherals.ccm.perclk_sel(),
     //     peripherals.ccm.perclk_divider(),
     // );
-    cortexm4::nvic::Nvic::new(s32k144::nvic::LPIT0_CH0_IRQN).enable();
+    // cortexm4::nvic::Nvic::new(s32k144::nvic::LPIT0_CH0_IRQN).enable();
 }
 
 /// This is in a separate, inline(never) function so that its stack frame is
@@ -640,25 +645,6 @@ unsafe fn clk_initialize(peripherals: &s32k144::chip::S32k14xDefaultPeripherals)
     // peripherals.spc.ConfigureModulesFromScg();
     peripherals.spc.init(clkuserconfig);
 }
-
-// /// Helper function called during bring-up that configures multiplexed I/O.
-// unsafe fn set_pin_primary_functions(peripherals: &S32k14xDefaultPeripherals) {
-//     use s32k14x::pcc::PerclkClockSel;
-//     peripherals.ports.gpio1.enable_clock();
-//     peripherals.ports.gpio2.enable_clock();
-//     peripherals.ports.gpio3.enable_clock();
-//     peripherals.ports.gpio4.enable_clock();
-//     peripherals.ports.gpio5.enable_clock();
-//     peripherals.lpuart0.enable_clock();
-//     peripherals.lpuart1.enable_clock();
-//     peripherals.lpuart2.enable_clock();
-//     peripherals.lpuart0.set_baud();
-//     peripherals.lpuart1.set_baud();
-//     peripherals.lpuart2.set_baud();
-//     peripherals.lpit1.enable_clock();
-//     peripherals.pcc.set_uart_clock_sel(PerclkClockSel::SIRC);
-//     peripherals.lpit1.start(PerclkClockSel::SIRC, 0);
-// }
 
 /// Main function.
 ///

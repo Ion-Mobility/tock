@@ -9,6 +9,7 @@ use kernel::hil::uart::Configure;
 
 use crate::s32k144;
 use s32k144::gpio::PinId;
+use s32k144::gpio::PinMuxFunction;
 
 use crate::CHIP;
 use crate::PROCESSES;
@@ -65,6 +66,7 @@ impl IoWrite for Writer {
 pub unsafe extern "C" fn panic_fmt(info: &PanicInfo) -> ! {
     // User Led is connected to AdB0_09
     let pin = s32k144::gpio::Pin::from_pin_id(PinId::Ptd00);
+    pin.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     let led = &mut led::LedLow::new(&pin);
     let writer = &mut WRITER;
 

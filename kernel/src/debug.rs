@@ -215,16 +215,16 @@ pub unsafe fn panic_process_info<PP: ProcessPrinter, W: Write>(
 pub fn panic_blink_forever<L: hil::led::Led>(leds: &mut [&L]) -> ! {
     leds.iter_mut().for_each(|led| led.init());
     loop {
-        for _ in 0..1000000 {
+        for _ in 0..10000 {
             leds.iter_mut().for_each(|led| led.on());
         }
-        for _ in 0..100000 {
+        for _ in 0..1000 {
             leds.iter_mut().for_each(|led| led.off());
         }
-        for _ in 0..1000000 {
+        for _ in 0..10000 {
             leds.iter_mut().for_each(|led| led.on());
         }
-        for _ in 0..500000 {
+        for _ in 0..5000 {
             leds.iter_mut().for_each(|led| led.off());
         }
     }
