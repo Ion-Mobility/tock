@@ -1,6 +1,6 @@
-//! Board file for S32K144EVB Discovery development board
+//! Board file for GridaniaTelematic Discovery development board
 //!
-//! - <https://www.nxp.com/document/guide/get-started-with-the-s32k144evb:NGS-S32K144EVB>
+//! - <https://www.nxp.com/document/guide/get-started-with-the-GridaniaTelematic:NGS-GridaniaTelematic>
 #![no_std]
 #![no_main]
 #![deny(missing_docs)]
@@ -16,7 +16,7 @@ use kernel::hil::led::LedLow;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, static_init};
-use s32k14x as s32k144;
+use s32k14x as gridaniatel;
 
 // Unit Tests for drivers.
 // #[allow(dead_code)]
@@ -34,7 +34,7 @@ const NUM_PROCS: usize = 4;
 static mut PROCESSES: [Option<&'static dyn kernel::process::Process>; NUM_PROCS] =
     [None; NUM_PROCS];
 
-type Chip = s32k144::chip::S32k14x<s32k144::chip::S32k14xDefaultPeripherals>;
+type Chip = gridaniatel::chip::S32k14x<gridaniatel::chip::S32k14xDefaultPeripherals>;
 static mut CHIP: Option<&'static Chip> = None;
 static mut PROCESS_PRINTER: Option<&'static kernel::process::ProcessPrinterText> = None;
 
@@ -53,24 +53,27 @@ pub static mut STACK_MEMORY: [u8; 0x4000] = [0; 0x4000];
 
 /// A structure representing this platform that holds references to all
 /// capsules for this platform.
-struct S32k144EVB {
+struct GridaniaTelematic {
     alarm: &'static capsules::alarm::AlarmDriver<
         'static,
-        VirtualMuxAlarm<'static, s32k144::lpit::Lpit1<'static>>,
+        VirtualMuxAlarm<'static, gridaniatel::lpit::Lpit1<'static>>,
     >,
-    button: &'static capsules::button::Button<'static, s32k144::gpio::Pin<'static>>,
+    button: &'static capsules::button::Button<'static, gridaniatel::gpio::Pin<'static>>,
     console: &'static capsules::console::Console<'static>,
-    gpio: &'static capsules::gpio::GPIO<'static, s32k144::gpio::Pin<'static>>,
+    gpio: &'static capsules::gpio::GPIO<'static, gridaniatel::gpio::Pin<'static>>,
     ipc: kernel::ipc::IPC<{ NUM_PROCS as u8 }>,
-    led:
-        &'static capsules::led::LedDriver<'static, LedLow<'static, s32k144::gpio::Pin<'static>>, 1>,
+    led: &'static capsules::led::LedDriver<
+        'static,
+        LedLow<'static, gridaniatel::gpio::Pin<'static>>,
+        1,
+    >,
     // ninedof: &'static capsules::ninedof::NineDof<'static>,
     scheduler: &'static RoundRobinSched<'static>,
     systick: cortexm4::systick::SysTick,
 }
 
 /// Mapping of integer syscalls to objects that implement syscalls.
-impl SyscallDriverLookup for S32k144EVB {
+impl SyscallDriverLookup for GridaniaTelematic {
     fn with_driver<F, R>(&self, driver_num: usize, f: F) -> R
     where
         F: FnOnce(Option<&dyn kernel::syscall::SyscallDriver>) -> R,
@@ -88,8 +91,8 @@ impl SyscallDriverLookup for S32k144EVB {
     }
 }
 
-impl KernelResources<s32k144::chip::S32k14x<s32k144::chip::S32k14xDefaultPeripherals>>
-    for S32k144EVB
+impl KernelResources<gridaniatel::chip::S32k14x<gridaniatel::chip::S32k14xDefaultPeripherals>>
+    for GridaniaTelematic
 {
     type SyscallDriverLookup = Self;
     type SyscallFilter = ();
@@ -133,10 +136,10 @@ impl KernelResources<s32k144::chip::S32k14x<s32k144::chip::S32k14xDefaultPeriphe
 
 /// Helper function called during bring-up that configures multiplexed I/O.
 unsafe fn set_pin_primary_functions(
-    peripherals: &'static s32k144::chip::S32k14xDefaultPeripherals,
+    peripherals: &'static gridaniatel::chip::S32k14xDefaultPeripherals,
 ) {
-    use s32k144::gpio::PinId;
-    use s32k144::gpio::PinMuxFunction;
+    use gridaniatel::gpio::PinId;
+    use gridaniatel::gpio::PinMuxFunction;
 
     peripherals.ports.gpio1.enable_clock();
     peripherals.ports.gpio2.enable_clock();
@@ -159,20 +162,23 @@ unsafe fn set_pin_primary_functions(
     //     Sion::Disabled,
     //     0,
     // );
-    let uarttxpin = s32k144::gpio::Pin::from_pin_id(PinId::Ptc07);
-    let uartrxpin = s32k144::gpio::Pin::from_pin_id(PinId::Ptc06);
+    let uarttxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc07);
+    let uartrxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc06);
     uarttxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
     uartrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
 
     // Configuring the IOMUXC_SNVS_WAKEUP pin as input
-    peripherals.ports.pin(PinId::Ptc12).pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
+    peripherals
+        .ports
+        .pin(PinId::Ptc12)
+        .pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     peripherals.ports.pin(PinId::Ptc12).make_input();
 }
 
 /// Helper function for miscellaneous peripheral functions
-unsafe fn setup_peripherals(peripherals: &s32k144::chip::S32k14xDefaultPeripherals) {
+unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPeripherals) {
     // LPUART1 IRQn is 20
-    // cortexm4::nvic::Nvic::new(s32k144::nvic::LPUART0_RXTX_IRQN).enable();
+    // cortexm4::nvic::Nvic::new(gridaniatel::nvic::LPUART0_RXTX_IRQN).enable();
 
     // TIM2 IRQn is 28
     // peripherals.lpit1.enable_clock();
@@ -180,25 +186,25 @@ unsafe fn setup_peripherals(peripherals: &s32k144::chip::S32k14xDefaultPeriphera
     //     peripherals.ccm.perclk_sel(),
     //     peripherals.ccm.perclk_divider(),
     // );
-    // cortexm4::nvic::Nvic::new(s32k144::nvic::LPIT0_CH0_IRQN).enable();
+    // cortexm4::nvic::Nvic::new(gridaniatel::nvic::LPIT0_CH0_IRQN).enable();
 }
 
 /// This is in a separate, inline(never) function so that its stack frame is
 /// removed when this function returns. Otherwise, the stack space used for
 /// these static_inits is wasted.
 #[inline(never)]
-unsafe fn get_peripherals() -> &'static mut s32k144::chip::S32k14xDefaultPeripherals {
-    let pcc = static_init!(s32k144::pcc::Pcc, s32k144::pcc::Pcc::new());
+unsafe fn get_peripherals() -> &'static mut gridaniatel::chip::S32k14xDefaultPeripherals {
+    let pcc = static_init!(gridaniatel::pcc::Pcc, gridaniatel::pcc::Pcc::new());
     let peripherals = static_init!(
-        s32k144::chip::S32k14xDefaultPeripherals,
-        s32k144::chip::S32k14xDefaultPeripherals::new(pcc)
+        gridaniatel::chip::S32k14xDefaultPeripherals,
+        gridaniatel::chip::S32k14xDefaultPeripherals::new(pcc)
     );
 
     peripherals
 }
 
 /// Helper function called during bring-up that configures multiplexed I/O.
-unsafe fn clk_initialize(peripherals: &s32k144::chip::S32k14xDefaultPeripherals) {
+unsafe fn clk_initialize(peripherals: &gridaniatel::chip::S32k14xDefaultPeripherals) {
     use s32k14x::pcc;
     use s32k14x::spc;
     let sircConfig: spc::SIRCConfig = spc::SIRCConfig {
@@ -653,7 +659,7 @@ unsafe fn clk_initialize(peripherals: &s32k144::chip::S32k14xDefaultPeripherals)
 /// This is called after RAM initialization is complete.
 #[no_mangle]
 pub unsafe fn main() {
-    s32k144::init();
+    gridaniatel::init();
     let peripherals = get_peripherals();
     clk_initialize(peripherals);
     // peripherals.pcc.set_low_power_mode();
@@ -662,7 +668,7 @@ pub unsafe fn main() {
     peripherals.lpuart2.enable_clock();
     peripherals
         .pcc
-        .set_uart_clock_sel(s32k144::pcc::PerclkClockSel::SIRC);
+        .set_uart_clock_sel(gridaniatel::pcc::PerclkClockSel::SIRC);
     peripherals.pcc.set_uart_clock_podf(1);
     peripherals.lpuart1.set_baud();
 
@@ -759,8 +765,8 @@ pub unsafe fn main() {
 
     // Clock to Port A is enabled in `set_pin_primary_functions()
     let led = components::led::LedsComponent::new().finalize(components::led_component_static!(
-        LedLow<'static, s32k144::gpio::Pin<'static>>,
-        LedLow::new(peripherals.ports.pin(s32k144::gpio::PinId::Ptd16)),
+        LedLow<'static, gridaniatel::gpio::Pin<'static>>,
+        LedLow::new(peripherals.ports.pin(gridaniatel::gpio::PinId::Ptd16)),
     ));
 
     // BUTTONs
@@ -768,20 +774,20 @@ pub unsafe fn main() {
         board_kernel,
         capsules::button::DRIVER_NUM,
         components::button_component_helper!(
-            s32k144::gpio::Pin,
+            gridaniatel::gpio::Pin,
             (
-                peripherals.ports.pin(s32k144::gpio::PinId::Ptc12),
+                peripherals.ports.pin(gridaniatel::gpio::PinId::Ptc12),
                 kernel::hil::gpio::ActivationMode::ActiveHigh,
                 kernel::hil::gpio::FloatingState::PullDown
             )
         ),
     )
-    .finalize(components::button_component_static!(s32k144::gpio::Pin));
+    .finalize(components::button_component_static!(gridaniatel::gpio::Pin));
 
     // ALARM
     let lpit1 = &peripherals.lpit1;
     let mux_alarm = components::alarm::AlarmMuxComponent::new(lpit1).finalize(
-        components::alarm_mux_component_static!(s32k144::lpit::Lpit1),
+        components::alarm_mux_component_static!(gridaniatel::lpit::Lpit1),
     );
 
     let alarm = components::alarm::AlarmDriverComponent::new(
@@ -789,7 +795,9 @@ pub unsafe fn main() {
         capsules::alarm::DRIVER_NUM,
         mux_alarm,
     )
-    .finalize(components::alarm_component_static!(s32k144::lpit::Lpit1));
+    .finalize(components::alarm_component_static!(
+        gridaniatel::lpit::Lpit1
+    ));
 
     // GPIO
     // For now we expose only two pins
@@ -797,13 +805,13 @@ pub unsafe fn main() {
         board_kernel,
         capsules::gpio::DRIVER_NUM,
         components::gpio_component_helper!(
-            s32k144::gpio::Pin<'static>,
+            gridaniatel::gpio::Pin<'static>,
             // The User Led
-            0 => peripherals.ports.pin(s32k144::gpio::PinId::Ptd16)
+            0 => peripherals.ports.pin(gridaniatel::gpio::PinId::Ptd16)
         ),
     )
     .finalize(components::gpio_component_static!(
-        s32k144::gpio::Pin<'static>
+        gridaniatel::gpio::Pin<'static>
     ));
 
     // LPI2C
@@ -880,7 +888,7 @@ pub unsafe fn main() {
     let scheduler = components::sched::round_robin::RoundRobinComponent::new(&PROCESSES)
         .finalize(components::round_robin_component_static!(NUM_PROCS));
 
-    let s32k144 = S32k144EVB {
+    let s32k144 = GridaniaTelematic {
         console: console,
         ipc: kernel::ipc::IPC::new(
             board_kernel,
@@ -916,7 +924,7 @@ pub unsafe fn main() {
         process_printer,
     )
     .finalize(components::process_console_component_static!(
-        s32k144::lpit::Lpit1
+        gridaniatel::lpit::Lpit1
     ));
     let _ = process_console.start();
 

@@ -7,9 +7,9 @@ use kernel::hil::led;
 use kernel::hil::uart;
 use kernel::hil::uart::Configure;
 
-use crate::s32k144;
-use s32k144::gpio::PinId;
-use s32k144::gpio::PinMuxFunction;
+use crate::gridaniatel;
+use gridaniatel::gpio::PinId;
+use gridaniatel::gpio::PinMuxFunction;
 
 use crate::CHIP;
 use crate::PROCESSES;
@@ -39,8 +39,8 @@ impl Write for Writer {
 
 impl IoWrite for Writer {
     fn write(&mut self, buf: &[u8]) {
-        let pcc = crate::s32k144::pcc::Pcc::new();
-        let uart = s32k144::lpuart::Lpuart::new_lpuart1(&pcc);
+        let pcc = crate::gridaniatel::pcc::Pcc::new();
+        let uart = gridaniatel::lpuart::Lpuart::new_lpuart1(&pcc);
 
         if !self.initialized {
             self.initialized = true;
@@ -65,7 +65,7 @@ impl IoWrite for Writer {
 #[panic_handler]
 pub unsafe extern "C" fn panic_fmt(info: &PanicInfo) -> ! {
     // User Led is connected to AdB0_09
-    let pin = s32k144::gpio::Pin::from_pin_id(PinId::Ptd00);
+    let pin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd00);
     pin.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     let led = &mut led::LedLow::new(&pin);
     let writer = &mut WRITER;
