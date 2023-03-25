@@ -50,12 +50,12 @@
             "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/target/thumbv7em-none-eabi/debug/gridania-tel",
             "servertype": "jlink",
-            "device": "S32K144",
-            "interface": "jtag",
+            "device": "S32K148",
+            "interface": "swd",
             "serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
             // "jlinkscript": "${workspaceRoot}/BSP/SEGGER/K66FN2M0_emPower/Setup/Kinetis_K66_Target.js",
             "runToMain": false,
-            "svdFile": "${workspaceRoot}/boards/s32k144evb/S32K144.svd",
+            "svdFile": "${workspaceRoot}/boards/gridania-tel/S32K148.svd",
         }
     ]
 }

@@ -51,7 +51,8 @@ impl S32k14xDefaultPeripherals {
 
 impl InterruptService<()> for S32k14xDefaultPeripherals {
     unsafe fn service_interrupt(&self, interrupt: u32) -> bool {
-        match interrupt {
+        let irqn = interrupt;
+        match irqn {
             nvic::LPUART0_RXTX_IRQN => self.lpuart0.handle_interrupt(),
             nvic::LPUART1_RXTX_IRQN => self.lpuart1.handle_interrupt(),
             nvic::LPUART2_RXTX_IRQN => self.lpuart2.handle_interrupt(),

@@ -1,3 +1,4 @@
+use core::cell::Cell;
 use cortexm4;
 use cortexm4::support;
 use cortexm4::support::atomic;
@@ -362,6 +363,69 @@ pub enum PinMuxFunction {
     PORT_MUX_ADC_INTERLEAVE = 8,
 }
 
+pub enum PortInternalPullConfig {
+    // internal pull-down or pull-up resistor is not enabled.
+    PORT_INTERNAL_PULL_NOT_ENABLED = 0,
+    // internal pull-down resistor is enabled. @internal gui name="Down"
+    PORT_INTERNAL_PULL_DOWN_ENABLED = 1,
+    // internal pull-up resistor is enabled. @internal gui name="Up"
+    PORT_INTERNAL_PULL_UP_ENABLED = 2,
+}
+pub enum PortDriveStrengthConfig {
+    /// low drive strength is configured. @internal gui name="Low"  
+    PORT_LOW_DRIVE_STRENGTH = 0,
+    /// high drive strength is configured. @internal gui name="High"
+    PORT_HIGH_DRIVE_STRENGTH = 1,
+}
+
+pub enum PortInterruptConfig {
+    /// Interrupt/DMA request is disabled.                   
+    PORT_DMA_INT_DISABLED = 0x0,
+    /// DMA request on rising edge.                          
+    PORT_DMA_RISING_EDGE = 0x1,
+    /// DMA request on falling edge.                         
+    PORT_DMA_FALLING_EDGE = 0x2,
+    /// DMA request on either edge.                          
+    PORT_DMA_EITHER_EDGE = 0x3,
+    // #if FEATURE_PORT_HAS_FLAG_SET_ONLY
+    /// Flag sets on rising edge, no interrupt is generated.
+    PORT_FLAG_RISING_EDGE = 0x5,
+    /// Flag sets on falling edge, no interrupt is generated.
+    PORT_FLAG_FALLING_EDGE = 0x6,
+    /// Flag sets on either edge, no interrupt is generated.
+    PORT_FLAG_EITHER_EDGE = 0x7,
+    // #endif /* FEATURE_PORT_HAS_FLAG_SET_ONLY */
+    /// Interrupt when logic 0.                              
+    PORT_INT_LOGIC_ZERO = 0x8,
+    /// Interrupt on rising edge.                            
+    PORT_INT_RISING_EDGE = 0x9,
+    /// Interrupt on falling edge.                           
+    PORT_INT_FALLING_EDGE = 0xA,
+    /// Interrupt on either edge.                            
+    PORT_INT_EITHER_EDGE = 0xB,
+    /// Interrupt when logic 1.                              
+    PORT_INT_LOGIC_ONE = 0xC,
+    // #if FEATURE_PORT_HAS_TRIGGER_OUT
+    /// Enable active high trigger output, flag is disabled.
+    PORT_HIGH_TRIGGER_OUT = 0xD,
+    /// Enable active low trigger output, flag is disabled.  
+    PORT_LOW_TRIGGER_OUT = 0xE, // #endif /* FEATURE_PORT_HAS_TRIGGER_OUT */
+}
+
+pub struct PinInitializingConfig {
+    pub portIdx: u32,
+    pub pinIdx: u32,
+    pub pullConfig: PortInternalPullConfig,
+    pub passiveFilter: bool,
+    pub driveSelect: PortDriveStrengthConfig,
+    pub pinMux: PinMuxFunction,
+    pub pinLock: bool,
+    pub intConfig: PortInterruptConfig,
+    pub clearIntFlag: bool,
+    pub gpioBase: Cell<Option<u32>>,
+    pub digitalFilter: bool,
+}
+
 impl PinId {
     /// Returns the port
     fn port(self) -> GpioPort {
@@ -594,6 +658,7 @@ impl<'a> Ports<'a> {
             GpioPort::GPIO5 => &self.gpio5.pins[pin.offset()],
         }
     }
+    pub fn initialize(&self, config: PinInitializingConfig) {}
 }
 
 struct PortClock<'a>(pcc::PeripheralClock<'a>);

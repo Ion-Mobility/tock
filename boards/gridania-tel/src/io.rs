@@ -40,7 +40,7 @@ impl Write for Writer {
 impl IoWrite for Writer {
     fn write(&mut self, buf: &[u8]) {
         let pcc = crate::gridaniatel::pcc::Pcc::new();
-        let uart = gridaniatel::lpuart::Lpuart::new_lpuart1(&pcc);
+        let uart = gridaniatel::lpuart::Lpuart::new_lpuart0(&pcc);
 
         if !self.initialized {
             self.initialized = true;
@@ -65,7 +65,7 @@ impl IoWrite for Writer {
 #[panic_handler]
 pub unsafe extern "C" fn panic_fmt(info: &PanicInfo) -> ! {
     // User Led is connected to AdB0_09
-    let pin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd00);
+    let pin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb12);
     pin.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     let led = &mut led::LedLow::new(&pin);
     let writer = &mut WRITER;

@@ -20,7 +20,7 @@ use s32k14x as s32k144;
 
 // Unit Tests for drivers.
 // #[allow(dead_code)]
-// mod virtual_uart_rx_test;
+mod virtual_uart_rx_test;
 
 /// Defines a vector which contains the boot section
 pub mod flashcfg;
@@ -900,7 +900,7 @@ pub unsafe fn main() {
     // Optional kernel tests
     //
     // See comment in `boards/imix/src/main.rs`
-    // virtual_uart_rx_test::run_virtual_uart_receive(mux_uart);
+    virtual_uart_rx_test::run_virtual_uart_receive(lpuart_mux);
 
     //--------------------------------------------------------------------------
     // Process Console

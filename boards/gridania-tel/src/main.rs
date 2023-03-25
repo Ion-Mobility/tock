@@ -20,7 +20,7 @@ use s32k14x as gridaniatel;
 
 // Unit Tests for drivers.
 // #[allow(dead_code)]
-// mod virtual_uart_rx_test;
+mod virtual_uart_rx_test;
 
 /// Defines a vector which contains the boot section
 pub mod flashcfg;
@@ -150,7 +150,7 @@ unsafe fn set_pin_primary_functions(
     // // User_LED is connected to GPIO_AD_B0_09.
     // // Values set accordingly to the evkbimxrt1050_iled_blinky SDK example
     // Configuring the GPIO_AD_B0_09 as output
-    let pin = peripherals.ports.pin(PinId::Ptd00);
+    let pin = peripherals.ports.pin(PinId::Ptd24);
     pin.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
     pin.make_output();
     kernel::debug::assign_gpios(Some(pin), None, None);
@@ -162,8 +162,8 @@ unsafe fn set_pin_primary_functions(
     //     Sion::Disabled,
     //     0,
     // );
-    let uarttxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc07);
-    let uartrxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc06);
+    let uarttxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb00);
+    let uartrxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb01);
     uarttxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
     uartrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
 
@@ -177,8 +177,210 @@ unsafe fn set_pin_primary_functions(
 
 /// Helper function for miscellaneous peripheral functions
 unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPeripherals) {
+    use gridaniatel::gpio::PinId;
+    use gridaniatel::gpio::PinMuxFunction;
+
+    let PinThrottleAdc = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta00);
+    let PinLcdTempAdc = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta01);
+    let PinPinSysI2cSda = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta02);
+    let PinPinSysI2cScl = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta03);
+    // let PinPinSwdioTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta04);
+    // let PinPinResetTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta05);
+    let PinSpiTmLizardCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta06);
+    let PinRtcClkIn = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta07);
+    let PinUartLteToTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta08);
+    let PinUartTmToLte = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta09);
+    let PinSwoTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta10);
+    let PinSpkI2sLrclk = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta11);
+    let PinSpkI2sBclk = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta12);
+    let PinSpkI2sData = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta13);
+    let PinSpiAccelCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta15);
+    let PinSpiTmWifiCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta16);
+    let PinPinSpiTmWifiInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta17);
+    let PinSpiAudFlCsel = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta26);
+    let PinSpiTmCopi = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta27);
+    let PinSpiTmClk = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta28);
+    let PinSpiTmCipo = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta29);
+    let PinWifiRstn = gridaniatel::gpio::Pin::from_pin_id(PinId::Pta31);
+
+    let PinUartRXTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb00);
+    let PinUartTXTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb01);
+    let PinSpiAudClk = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb02);
+    let PinSpiAudCipo = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb03);
+    let PinSpiAudCopi = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb04);
+    let PinSpiAudFlashRst = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb05);
+    let PinPkeExtClk = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb08);
+    let PinTmHmiGpio0 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb09);
+    let PinTmHmiGpio1 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb10);
+    let PinTmHmiGpio2 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb11);
+    let PinHudLampPkeR = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb12);
+    let PinHudLampPkeG = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb13);
+    let PinAmbientTemp2 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb14);
+    let PinAmbientTemp3 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb15);
+    let PinSpkI2sMute = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb16);
+    let PinTmBleCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb17);
+    let PinSpkI2sShutdow = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb18);
+
+    let PinVbattAdc = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc00);
+    let PinQspiTmIo3 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc02);
+    let PinQspiTmCsel = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc03);
+    // let PinSwclkTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc04);
+    let PinBoostShutdown = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc05);
+    let PinWifiBootMode0 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc08);
+    let PinWifiBootMode1 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc09);
+    let PinUsbOtgEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc11);
+    let PinSpiRtTmInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc13);
+    let PinLteSimHotplug = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc14);
+    let PinLteSim1Presence = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc15);
+    let PinLteSimSwitch = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc17);
+    let PinSpiTmRtCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc19);
+    let PinSpiTmFlReset = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc23);
+    let PinPkeBusy = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc27);
+    let PinSpkCdDiag148 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc29);
+    let PinSpiPkeClk = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc30);
+    let PinVHmi5vEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc31);
+
+    let PinLightInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd00);
+    let PinSpiPkeCipo = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd01);
+    let PinSpiPkeCopi = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd02);
+    let PinSpiTmPkeCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd03);
+    let PinAmbientTemp1 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd04);
+    let PinLteResetN = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd05);
+    let PinLtePwrKey = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd06);
+    let PinQspiTmIo1 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd07);
+    let PinTmHmiCopi = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd08);
+    let PinTmHmiClk = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd09);
+    let PinQspiTmSck = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd10);
+    let PinQspiTmIo0 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd11);
+    let PinQspiTmIo2 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd12);
+    let PinUartRtToTmRx = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd13);
+    let PinUartRtToTmTx = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd14);
+    let PinLteLsEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd17);
+    let PinVlteEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd22);
+    let PinV5VEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptd24);
+
+    let PinI2sHmiEn = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte00);
+    let PinTmHmiInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte01);
+    let PinDiagCanStbTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte02);
+    let PinUartLteRts = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte03);
+    let PinDiagCanRxTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte04);
+    let PinDiagCanTxTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte05);
+    let PinLizardLna = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte07);
+    let PinLizardRst = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte08);
+    let PinUartLteCts = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte09);
+    let PinSpiTmLizardRdy = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte10);
+    let PinSpiTmLizardInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte11);
+    let PinLizardAntSel = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte12);
+    let PinPkeRst = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte13);
+    let PinPkeInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte14);
+    let PinTmHmiCipo = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte15);
+    let PinTmHmiCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte16);
+    let PinRtcInt1 = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte19);
+    let PinTmBleInt = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte20);
+    let PinTmBleNReset = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte21);
+    let PinTmBleWakeup = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte22);
+    let PinSysCanStbTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte23);
+    let PinSysCanTxTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte24);
+    let PinSysCanRxTm = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte25);
+
+    PinThrottleAdc.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLcdTempAdc.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPinSysI2cSda.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPinSysI2cScl.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmLizardCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinRtcClkIn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartLteToTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartTmToLte.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkI2sLrclk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkI2sBclk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkI2sData.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiAccelCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmWifiCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPinSpiTmWifiInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiAudFlCsel.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmCopi.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmClk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmCipo.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinWifiRstn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartRXTm.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
+    PinUartTXTm.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
+    PinSpiAudClk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiAudCipo.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiAudCopi.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiAudFlashRst.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPkeExtClk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiGpio0.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiGpio1.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiGpio2.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinHudLampPkeR.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinHudLampPkeG.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinAmbientTemp2.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinAmbientTemp3.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkI2sMute.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmBleCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkI2sShutdow.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinVbattAdc.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmIo3.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmCsel.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinBoostShutdown.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinWifiBootMode0.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinWifiBootMode1.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUsbOtgEn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiRtTmInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLteSimHotplug.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLteSim1Presence.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLteSimSwitch.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmRtCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmFlReset.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPkeBusy.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpkCdDiag148.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiPkeClk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinVHmi5vEn.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
+    PinLightInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiPkeCipo.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiPkeCopi.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmPkeCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinAmbientTemp1.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLteResetN.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLtePwrKey.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmIo1.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiCopi.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiClk.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmSck.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmIo0.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinQspiTmIo2.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartRtToTmRx.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartRtToTmTx.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLteLsEn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinVlteEn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinV5VEn.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
+    PinI2sHmiEn.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinDiagCanStbTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartLteRts.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinDiagCanRxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinDiagCanTxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLizardLna.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLizardRst.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinUartLteCts.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmLizardRdy.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmLizardInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinLizardAntSel.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPkeRst.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinPkeInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiCipo.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmHmiCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinRtcInt1.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmBleInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmBleNReset.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinTmBleWakeup.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSysCanStbTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSysCanTxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSysCanRxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+
     // LPUART1 IRQn is 20
     // cortexm4::nvic::Nvic::new(gridaniatel::nvic::LPUART0_RXTX_IRQN).enable();
+    cortexm4::nvic::Nvic::new(gridaniatel::nvic::RTC_IRQN).disable();
 
     // TIM2 IRQn is 28
     // peripherals.lpit1.enable_clock();
@@ -205,6 +407,7 @@ unsafe fn get_peripherals() -> &'static mut gridaniatel::chip::S32k14xDefaultPer
 
 /// Helper function called during bring-up that configures multiplexed I/O.
 unsafe fn clk_initialize(peripherals: &gridaniatel::chip::S32k14xDefaultPeripherals) {
+    use s32k14x::gpio;
     use s32k14x::pcc;
     use s32k14x::spc;
     let sircConfig: spc::SIRCConfig = spc::SIRCConfig {
@@ -241,7 +444,7 @@ unsafe fn clk_initialize(peripherals: &gridaniatel::chip::S32k14xDefaultPeripher
     };
     let rtc_config: spc::RTCConfig = spc::RTCConfig {
         rtcClkInFreq: 8000000,
-        initialize: false,
+        initialize: true,
     };
     let soscConfig: spc::SOSCConfig = spc::SOSCConfig {
         initialize: true,
@@ -670,7 +873,7 @@ pub unsafe fn main() {
         .pcc
         .set_uart_clock_sel(gridaniatel::pcc::PerclkClockSel::SIRC);
     peripherals.pcc.set_uart_clock_podf(1);
-    peripherals.lpuart1.set_baud();
+    peripherals.lpuart0.set_baud();
 
     set_pin_primary_functions(peripherals);
 
@@ -733,10 +936,10 @@ pub unsafe fn main() {
     // );
 
     // Enable clock
-    peripherals.lpuart1.enable_clock();
+    peripherals.lpuart0.enable_clock();
 
     let lpuart_mux = components::console::UartMuxComponent::new(
-        &peripherals.lpuart1,
+        &peripherals.lpuart0,
         115200,
         dynamic_deferred_caller,
     )
@@ -908,7 +1111,7 @@ pub unsafe fn main() {
     // Optional kernel tests
     //
     // See comment in `boards/imix/src/main.rs`
-    // virtual_uart_rx_test::run_virtual_uart_receive(mux_uart);
+    virtual_uart_rx_test::run_virtual_uart_receive(lpuart_mux);
 
     //--------------------------------------------------------------------------
     // Process Console
