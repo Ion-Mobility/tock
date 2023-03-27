@@ -20,7 +20,7 @@ use s32k14x as gridaniatel;
 
 // Unit Tests for drivers.
 // #[allow(dead_code)]
-mod virtual_uart_rx_test;
+// mod virtual_uart_rx_test;
 
 /// Defines a vector which contains the boot section
 pub mod flashcfg;
@@ -377,7 +377,7 @@ unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPerip
     PinSysCanStbTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinSysCanTxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinSysCanRxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-
+    // PinV5VEn.Output(high);
     // LPUART1 IRQn is 20
     // cortexm4::nvic::Nvic::new(gridaniatel::nvic::LPUART0_RXTX_IRQN).enable();
     cortexm4::nvic::Nvic::new(gridaniatel::nvic::RTC_IRQN).disable();
@@ -1111,7 +1111,7 @@ pub unsafe fn main() {
     // Optional kernel tests
     //
     // See comment in `boards/imix/src/main.rs`
-    virtual_uart_rx_test::run_virtual_uart_receive(lpuart_mux);
+    // virtual_uart_rx_test::run_virtual_uart_receive(mux_uart);
 
     //--------------------------------------------------------------------------
     // Process Console
