@@ -48,6 +48,7 @@ use kernel::capabilities;
 use kernel::component::Component;
 use kernel::hil::i2c::I2CMaster;
 use kernel::hil::led::LedHigh;
+use kernel::hil::spi::SpiMaster;
 use kernel::hil::time::Counter;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
@@ -96,6 +97,9 @@ static mut CCS811: Option<&'static capsules_extra::ccs811::Ccs811<'static>> = No
 #[link_section = ".stack_buffer"]
 pub static mut STACK_MEMORY: [u8; 0x1000] = [0; 0x1000];
 
+const LORA_SPI_DRIVER_NUM: usize = capsules_core::driver::NUM::LoRaPhySPI as usize;
+const LORA_GPIO_DRIVER_NUM: usize = capsules_core::driver::NUM::LoRaPhyGPIO as usize;
+
 /// A structure representing this platform that holds references to all
 /// capsules for this platform.
 struct LoRaThingsPlus {
@@ -119,6 +123,14 @@ struct LoRaThingsPlus {
             apollo3::iom::Iom<'static>,
         >,
     >,
+    sx1262_spi_controller: &'static capsules_core::spi_controller::Spi<
+        'static,
+        capsules_core::virtualizers::virtual_spi::VirtualSpiMasterDevice<
+            'static,
+            apollo3::iom::Iom<'static>,
+        >,
+    >,
+    sx1262_gpio: &'static capsules_core::gpio::GPIO<'static, apollo3::gpio::GpioPin<'static>>,
     ble_radio: &'static capsules_extra::ble_advertising_driver::BLE<
         'static,
         apollo3::ble::Ble<'static>,
@@ -144,6 +156,8 @@ impl SyscallDriverLookup for LoRaThingsPlus {
             capsules_core::console::DRIVER_NUM => f(Some(self.console)),
             capsules_core::i2c_master::DRIVER_NUM => f(Some(self.i2c_master)),
             capsules_core::spi_controller::DRIVER_NUM => f(Some(self.external_spi_controller)),
+            LORA_SPI_DRIVER_NUM => f(Some(self.sx1262_spi_controller)),
+            LORA_GPIO_DRIVER_NUM => f(Some(self.sx1262_gpio)),
             capsules_extra::ble_advertising_driver::DRIVER_NUM => f(Some(self.ble_radio)),
             capsules_extra::temperature::DRIVER_NUM => f(Some(self.temperature)),
             capsules_extra::humidity::DRIVER_NUM => f(Some(self.humidity)),
@@ -189,14 +203,15 @@ impl KernelResources<apollo3::chip::Apollo3<Apollo3DefaultPeripherals>> for LoRa
     }
 }
 
+// Ensure that `setup()` is never inlined
+// This helps reduce the stack frame, see https://github.com/tock/tock/issues/3518
+#[inline(never)]
 unsafe fn setup() -> (
     &'static kernel::Kernel,
     &'static LoRaThingsPlus,
     &'static apollo3::chip::Apollo3<Apollo3DefaultPeripherals>,
     &'static Apollo3DefaultPeripherals,
 ) {
-    apollo3::init();
-
     let peripherals = static_init!(Apollo3DefaultPeripherals, Apollo3DefaultPeripherals::new());
 
     // No need to statically allocate mcu/pwr/clk_ctrl because they are only used in main!
@@ -238,6 +253,8 @@ unsafe fn setup() -> (
         &&peripherals.gpio_port[38],
         &&peripherals.gpio_port[43],
     );
+    // Enable the radio pins
+    let _ = &peripherals.gpio_port.enable_sx1262_radio_pins();
 
     // Configure kernel debug gpios as early as possible
     kernel::debug::assign_gpios(Some(&peripherals.gpio_port[26]), None, None);
@@ -275,11 +292,6 @@ unsafe fn setup() -> (
             2 => &&peripherals.gpio_port[32],  // A2
             3 => &&peripherals.gpio_port[35],  // A3
             4 => &&peripherals.gpio_port[34],  // A4
-            5 => &&peripherals.gpio_port[36],  // H6 - SX1262 Slave Select
-            6 => &&peripherals.gpio_port[39],  // J8 - SX1262 Radio Busy Indicator
-            7 => &&peripherals.gpio_port[40],  // J9 - SX1262 Multipurpose digital I/O (DIO1)
-            8 => &&peripherals.gpio_port[47],  // H9 - SX1262 Multipurpose digital I/O (DIO3)
-            9 => &&peripherals.gpio_port[44],  // J7 - SX1262 Reset
         ),
     )
     .finalize(components::gpio_component_static!(apollo3::gpio::GpioPin));
@@ -304,11 +316,15 @@ unsafe fn setup() -> (
     PROCESS_PRINTER = Some(process_printer);
 
     // Init the I2C device attached via Qwiic
+    let i2c_master_buffer = static_init!(
+        [u8; capsules_core::i2c_master::BUFFER_LENGTH],
+        [0; capsules_core::i2c_master::BUFFER_LENGTH]
+    );
     let i2c_master = static_init!(
         capsules_core::i2c_master::I2CMasterDriver<'static, apollo3::iom::Iom<'static>>,
         capsules_core::i2c_master::I2CMasterDriver::new(
             &peripherals.iom0,
-            &mut capsules_core::i2c_master::BUF,
+            i2c_master_buffer,
             board_kernel.create_grant(
                 capsules_core::i2c_master::DRIVER_NUM,
                 &memory_allocation_cap
@@ -319,11 +335,13 @@ unsafe fn setup() -> (
     let _ = &peripherals.iom0.set_master_client(i2c_master);
     let _ = &peripherals.iom0.enable();
 
-    let mux_i2c = components::i2c::I2CMuxComponent::new(&peripherals.iom0, None)
-        .finalize(components::i2c_mux_component_static!());
+    let mux_i2c = components::i2c::I2CMuxComponent::new(&peripherals.iom0, None).finalize(
+        components::i2c_mux_component_static!(apollo3::iom::Iom<'static>),
+    );
 
-    let bme280 =
-        Bme280Component::new(mux_i2c, 0x77).finalize(components::bme280_component_static!());
+    let bme280 = Bme280Component::new(mux_i2c, 0x77).finalize(
+        components::bme280_component_static!(apollo3::iom::Iom<'static>),
+    );
     let temperature = components::temperature::TemperatureComponent::new(
         board_kernel,
         capsules_extra::temperature::DRIVER_NUM,
@@ -338,8 +356,9 @@ unsafe fn setup() -> (
     .finalize(components::humidity_component_static!());
     BME280 = Some(bme280);
 
-    let ccs811 =
-        Ccs811Component::new(mux_i2c, 0x5B).finalize(components::ccs811_component_static!());
+    let ccs811 = Ccs811Component::new(mux_i2c, 0x5B).finalize(
+        components::ccs811_component_static!(apollo3::iom::Iom<'static>),
+    );
     let air_quality = components::air_quality::AirQualityComponent::new(
         board_kernel,
         capsules_extra::temperature::DRIVER_NUM,
@@ -364,9 +383,37 @@ unsafe fn setup() -> (
     ));
 
     // Init the internal SX1262 SPI controller
-    let _sx1262_mux_spi = components::spi::SpiMuxComponent::new(&peripherals.iom3).finalize(
+    let sx1262_mux_spi = components::spi::SpiMuxComponent::new(&peripherals.iom3).finalize(
         components::spi_mux_component_static!(apollo3::iom::Iom<'static>),
     );
+
+    let sx1262_spi_controller = components::spi::SpiSyscallComponent::new(
+        board_kernel,
+        sx1262_mux_spi,
+        &peripherals.gpio_port[36], // H6 - SX1262 Slave Select
+        LORA_SPI_DRIVER_NUM,
+    )
+    .finalize(components::spi_syscall_component_static!(
+        apollo3::iom::Iom<'static>
+    ));
+    peripherals
+        .iom3
+        .specify_chip_select(&peripherals.gpio_port[36])
+        .unwrap();
+
+    let sx1262_gpio = components::gpio::GpioComponent::new(
+        board_kernel,
+        LORA_GPIO_DRIVER_NUM,
+        components::gpio_component_helper!(
+            apollo3::gpio::GpioPin,
+            0 => &&peripherals.gpio_port[36], // H6 - SX1262 Slave Select
+            1 => &&peripherals.gpio_port[39], // J8 - SX1262 Radio Busy Indicator
+            2 => &&peripherals.gpio_port[40], // J9 - SX1262 Multipurpose digital I/O (DIO1)
+            3 => &&peripherals.gpio_port[47], // H9 - SX1262 Multipurpose digital I/O (DIO3)
+            4 => &&peripherals.gpio_port[44], // J7 - SX1262 Reset
+        ),
+    )
+    .finalize(components::gpio_component_static!(apollo3::gpio::GpioPin));
 
     // Setup BLE
     mcu_ctrl.enable_ble();
@@ -418,6 +465,8 @@ unsafe fn setup() -> (
             led,
             i2c_master,
             external_spi_controller,
+            sx1262_spi_controller,
+            sx1262_gpio,
             ble_radio,
             temperature,
             humidity,
@@ -462,6 +511,8 @@ unsafe fn setup() -> (
 /// setup and RAM initialization.
 #[no_mangle]
 pub unsafe fn main() {
+    apollo3::init();
+
     #[cfg(test)]
     test_main();
 

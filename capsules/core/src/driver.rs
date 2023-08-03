@@ -39,6 +39,8 @@ pub enum NUM {
     BleAdvertising        = 0x30000,
     Ieee802154            = 0x30001,
     Udp                   = 0x30002,
+    LoRaPhySPI            = 0x30003,
+    LoRaPhyGPIO           = 0x30004,
 
     // Cryptography
     Rng                   = 0x40001,
@@ -85,5 +87,6 @@ pub enum NUM {
     Touch                 = 0x90002,
     TextScreen            = 0x90003,
     SevenSegment          = 0x90004,
+    KeyboardHid           = 0x90005,
 }
 }

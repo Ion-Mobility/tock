@@ -33,7 +33,7 @@ let
         colorama
         crcmod
         pyserial
-        pytoml
+        toml
         tqdm
         questionary
       ];
@@ -84,6 +84,7 @@ in
     buildInputs = with pkgs; [
       # --- Toolchains ---
       rustBuild
+      openocd
 
       # --- Convenience and support packages ---
       python3Full

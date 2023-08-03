@@ -849,7 +849,7 @@ impl<'a> Iom<'_> {
     }
 }
 
-impl<'a> hil::i2c::I2CMaster for Iom<'a> {
+impl<'a> hil::i2c::I2CMaster<'a> for Iom<'a> {
     fn set_master_client(&self, i2c_master_client: &'a dyn i2c::I2CHwMasterClient) {
         self.i2c_master_client.set(i2c_master_client);
     }
@@ -945,7 +945,7 @@ impl<'a> hil::i2c::I2CMaster for Iom<'a> {
     }
 }
 
-impl<'a> hil::i2c::SMBusMaster for Iom<'a> {
+impl<'a> hil::i2c::SMBusMaster<'a> for Iom<'a> {
     fn smbus_write_read(
         &self,
         addr: u8,
@@ -1029,7 +1029,7 @@ impl<'a> hil::i2c::SMBusMaster for Iom<'a> {
     }
 }
 
-impl<'a> SpiMaster for Iom<'a> {
+impl<'a> SpiMaster<'a> for Iom<'a> {
     type ChipSelect = &'a crate::gpio::GpioPin<'a>;
 
     fn init(&self) -> Result<(), ErrorCode> {
@@ -1059,7 +1059,7 @@ impl<'a> SpiMaster for Iom<'a> {
         Ok(())
     }
 
-    fn set_client(&self, client: &'static dyn SpiMasterClient) {
+    fn set_client(&self, client: &'a dyn SpiMasterClient) {
         self.spi_master_client.set(client);
     }
 
@@ -1281,7 +1281,7 @@ impl<'a> SpiMaster for Iom<'a> {
     }
 
     fn set_rate(&self, rate: u32) -> Result<u32, ErrorCode> {
-        if self.op.get() != Operation::SPI {
+        if self.op.get() != Operation::SPI && self.op.get() != Operation::None {
             return Err(ErrorCode::BUSY);
         }
 
@@ -1347,7 +1347,7 @@ impl<'a> SpiMaster for Iom<'a> {
     }
 
     fn set_polarity(&self, polarity: ClockPolarity) -> Result<(), ErrorCode> {
-        if self.op.get() != Operation::SPI {
+        if self.op.get() != Operation::SPI && self.op.get() != Operation::None {
             return Err(ErrorCode::BUSY);
         }
 
@@ -1369,7 +1369,7 @@ impl<'a> SpiMaster for Iom<'a> {
     }
 
     fn set_phase(&self, phase: ClockPhase) -> Result<(), ErrorCode> {
-        if self.op.get() != Operation::SPI {
+        if self.op.get() != Operation::SPI && self.op.get() != Operation::None {
             return Err(ErrorCode::BUSY);
         }
 
