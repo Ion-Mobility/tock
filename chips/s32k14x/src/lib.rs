@@ -49,7 +49,7 @@ pub static BASE_VECTORS: [unsafe extern "C" fn(); 16] = [
 #[cfg_attr(all(target_arch = "arm", target_os = "none"), link_section = ".vtor")]
 // used Ensures that the symbol is kept until the final binary
 #[cfg_attr(all(target_arch = "arm", target_os = "none"), used)]
-pub static IRQS: [unsafe extern "C" fn(); 80] = [CortexM4::GENERIC_ISR; 89];
+pub static IRQS: [unsafe extern "C" fn(); 89] = [CortexM4::GENERIC_ISR; 89];
 
 pub unsafe fn init() {
     cortexm4::nvic::disable_all();
