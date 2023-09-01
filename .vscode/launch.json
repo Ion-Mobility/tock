@@ -54,7 +54,7 @@
             "interface": "swd",
             "serialNumber": "", //If you have more than one J-Link probe, add the serial number here.
             // "jlinkscript": "${workspaceRoot}/BSP/SEGGER/K66FN2M0_emPower/Setup/Kinetis_K66_Target.js",
-            "runToMain": false,
+            "runToMain": true,
             "svdFile": "${workspaceRoot}/boards/gridania-tel/S32K148.svd",
         }
     ]

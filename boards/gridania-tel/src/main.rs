@@ -3,8 +3,7 @@
 //! - <https://www.nxp.com/document/guide/get-started-with-the-GridaniaTelematic:NGS-GridaniaTelematic>
 #![no_std]
 #![no_main]
-#![deny(missing_docs)]
-
+#[deny(missing_docs)]
 use capsules::virtual_alarm::VirtualMuxAlarm;
 use components::gpio::GpioComponent;
 use kernel::capabilities;
@@ -17,6 +16,7 @@ use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, static_init};
 use s32k14x as gridaniatel;
+use s32k14x::lpspi::LPSPI;
 
 // Unit Tests for drivers.
 // #[allow(dead_code)]
@@ -40,6 +40,17 @@ static mut PROCESS_PRINTER: Option<&'static kernel::process::ProcessPrinterText>
 
 // How should the kernel respond when a process faults.
 const FAULT_RESPONSE: kernel::process::PanicFaultPolicy = kernel::process::PanicFaultPolicy {};
+
+extern "C" {
+    pub fn CanTransmitPacket(MailboxID: u8, MsgID: u32, data: *const u8, len: u8) -> u8;
+    pub fn CanInit();
+    pub fn CanReceivePacket(
+        MailboxID: u8,
+        MsgID: *const u32,
+        data: *const u8,
+        len: *const u8,
+    ) -> u8;
+}
 
 // Manually setting the boot header section that contains the FCB header
 #[used]
@@ -166,6 +177,10 @@ unsafe fn set_pin_primary_functions(
     let uartrxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb01);
     uarttxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
     uartrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT2);
+    let cantxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte24);
+    let canrxpin = gridaniatel::gpio::Pin::from_pin_id(PinId::Pte25);
+    cantxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT3);
+    canrxpin.pin_make_function(PinMuxFunction::PORT_MUX_ALT3);
 
     // Configuring the IOMUXC_SNVS_WAKEUP pin as input
     peripherals
@@ -220,6 +235,9 @@ unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPerip
     let PinSpkI2sMute = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb16);
     let PinTmBleCs = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb17);
     let PinSpkI2sShutdow = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb18);
+    let PinSpiTmRtSout = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb27);
+    let PinSpiTmRtSin = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb28);
+    let PinSpiTmRtSck = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptb29);
 
     let PinVbattAdc = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc00);
     let PinQspiTmIo3 = gridaniatel::gpio::Pin::from_pin_id(PinId::Ptc02);
@@ -330,7 +348,7 @@ unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPerip
     PinLteSimHotplug.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinLteSim1Presence.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinLteSimSwitch.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-    PinSpiTmRtCs.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
+    PinSpiTmRtCs.pin_make_function(PinMuxFunction::PORT_MUX_ALT5);
     PinSpiTmFlReset.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinPkeBusy.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinSpkCdDiag148.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
@@ -374,10 +392,19 @@ unsafe fn setup_peripherals(peripherals: &gridaniatel::chip::S32k14xDefaultPerip
     PinTmBleInt.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinTmBleNReset.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
     PinTmBleWakeup.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-    PinSysCanStbTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-    PinSysCanTxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-    PinSysCanRxTm.pin_make_function(PinMuxFunction::PORT_PIN_DISABLED);
-    // PinV5VEn.Output(high);
+    PinSysCanStbTm.pin_make_function(PinMuxFunction::PORT_MUX_AS_GPIO);
+    PinSysCanTxTm.pin_make_function(PinMuxFunction::PORT_MUX_ALT3);
+    PinSysCanRxTm.pin_make_function(PinMuxFunction::PORT_MUX_ALT3);
+    PinSpiTmRtSout.pin_make_function(PinMuxFunction::PORT_MUX_ALT5);
+    PinSpiTmRtSin.pin_make_function(PinMuxFunction::PORT_MUX_ALT5);
+    PinSpiTmRtSck.pin_make_function(PinMuxFunction::PORT_MUX_ALT5);
+
+    PinV5VEn.make_output();
+    PinSysCanStbTm.make_output();
+    PinVHmi5vEn.make_output();
+    PinV5VEn.set_output_high();
+    PinSysCanStbTm.set_output_low();
+    PinVHmi5vEn.set_output_high();
     // LPUART1 IRQn is 20
     // cortexm4::nvic::Nvic::new(gridaniatel::nvic::LPUART0_RXTX_IRQN).enable();
     cortexm4::nvic::Nvic::new(gridaniatel::nvic::RTC_IRQN).disable();
@@ -866,14 +893,14 @@ pub unsafe fn main() {
     let peripherals = get_peripherals();
     clk_initialize(peripherals);
     // peripherals.pcc.set_low_power_mode();
-    peripherals.lpuart0.enable_clock();
-    peripherals.lpuart1.enable_clock();
-    peripherals.lpuart2.enable_clock();
-    peripherals
-        .pcc
-        .set_uart_clock_sel(gridaniatel::pcc::PerclkClockSel::SIRC);
-    peripherals.pcc.set_uart_clock_podf(1);
-    peripherals.lpuart0.set_baud();
+    // peripherals.lpuart0.enable_clock();
+    // peripherals.lpuart1.enable_clock();
+    // peripherals.lpuart2.enable_clock();
+    // peripherals
+    //     .pcc
+    //     .set_uart_clock_sel(gridaniatel::pcc::PerclkClockSel::SIRC);
+    // peripherals.pcc.set_uart_clock_podf(1);
+    // peripherals.lpuart0.set_baud();
 
     set_pin_primary_functions(peripherals);
 
@@ -963,6 +990,15 @@ pub unsafe fn main() {
     // Create the debugger object that handles calls to `debug!()`.
     components::debug_writer::DebugWriterComponent::new(lpuart_mux)
         .finalize(components::debug_writer_component_static!());
+
+    // Setup SPI2
+    const SPI_BAUD_RATE_FREQUENCY: u32 = 1_000_000;
+    let pcc = crate::gridaniatel::pcc::Pcc::new();
+    let mut lpspi2 = LPSPI::new_lpspi2(&pcc);
+    lpspi2.init();
+    lpspi2.set_spi_clock(8_000_000 as u32, SPI_BAUD_RATE_FREQUENCY);
+    let mut spi_tx_buf: [u8; 8] = [0x12; 8];
+    lpspi2.exchange(spi_tx_buf.as_ptr(), 8);
 
     // LEDs
 
@@ -1132,6 +1168,25 @@ pub unsafe fn main() {
     let _ = process_console.start();
 
     debug!("Tock OS initialization complete. Entering main loop");
+
+    debug!("Init CAN\n");
+    CanInit();
+    debug!("Transmit CAN packet:\n");
+    let mut _tx_buf: [u8; 8] = [0x12; 8];
+    let mut _rx_buf: [u8; 8] = [0x12; 8];
+    let mut _value: u8 = 0;
+    let mut _rx_value: u8 = 0;
+    let MsgID: u32 = 0;
+    let len: u8 = 0;
+    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
+    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
+    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
+    debug!("return value: {} \n", _value);
+
+    // while _rx_value == 0 {
+    //     _rx_value = CanReceivePacket(0, &MsgID, _rx_buf.as_ptr(), &len);
+    //     debug!("rx value: {:?} \n", _rx_buf);
+    // }
 
     extern "C" {
         /// Beginning of the ROM region containing app images.

@@ -752,11 +752,11 @@ impl<'a> Pin<'a> {
         self.io.pddr.set(pddr);
     }
 
-    fn set_output_high(&self) {
+    pub fn set_output_high(&self) {
         self.io.psor.set(1 << self.offset);
     }
 
-    fn set_output_low(&self) {
+    pub fn set_output_low(&self) {
         self.io.pcor.set(1 << self.offset);
     }
 

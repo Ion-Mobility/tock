@@ -443,7 +443,9 @@ impl<'a> Lpuart<'a> {
 
     pub fn set_baud(&self) {
         // Set the Baud Rate Modulo Divisor
-        self.registers.baud.write(BAUD::SBR.val(3 as u32)+ BAUD::OSR.val(22 as u32));
+        self.registers
+            .baud
+            .write(BAUD::SBR.val(3 as u32) + BAUD::OSR.val(22 as u32));
     }
 
     // for use by panic in io.rs
