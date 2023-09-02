@@ -673,7 +673,7 @@ unsafe fn clk_initialize(peripherals: &gridaniatel::chip::S32k14xDefaultPeripher
         spc::PeripheralClockConfig {
             clockName: spc::PeripheralClockName::LPSPI2_CLK,
             clkGate: true,
-            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC,
+            clkSrc: spc::PeripheralClockSource::CLK_SRC_SIRC_DIV2,
             frac: spc::PeripheralClockFrac::MULTIPLY_BY_ONE,
             divider: spc::PeripheralClockDiv::DIVIDE_BY_ONE,
         },
@@ -998,7 +998,7 @@ pub unsafe fn main() {
     lpspi2.init();
     lpspi2.set_spi_clock(8_000_000 as u32, SPI_BAUD_RATE_FREQUENCY);
     let mut spi_tx_buf: [u8; 8] = [0x12; 8];
-    lpspi2.exchange(spi_tx_buf.as_ptr(), 8);
+    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 8);
 
     // LEDs
 

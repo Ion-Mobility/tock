@@ -256,6 +256,7 @@ struct LpspiRegisters {
     /// Parameter Register
     param: ReadOnly<u32, PARAM::Register>,
     /// LPSPI Control Register (CR)
+    _reserved0: [u8; 8],
     cr: ReadWrite<u32, CR::Register>,
     /// LPSPI Status Register (SR)
     sr: ReadWrite<u32, SR::Register>,
@@ -267,12 +268,15 @@ struct LpspiRegisters {
     cfgr0: ReadWrite<u32, CFGR0::Register>,
     /// LPSPI Configuration Register 1 (CFGR1)
     cfgr1: ReadWrite<u32, CFGR1::Register>,
+    _reserved1: [u8; 8],
     /// LPSPI Data Match Register 0 (DMR0)
     dmr0: ReadWrite<u32, DMR0::Register>,
     /// LPSPI Data Match Register 1 (DMR1)
     dmr1: ReadWrite<u32, DMR1::Register>,
+    _reserved2: [u8; 8],
     /// LPSPI Clock Configuration Register (CCR)
     ccr: ReadWrite<u32, CCR::Register>,
+    _reserved3: [u8; 20],
     /// LPSPI FIFO Control Register (FCR)
     fcr: ReadWrite<u32, FCR::Register>,
     /// LPSPI FIFO Status Register (FSR)
@@ -281,6 +285,7 @@ struct LpspiRegisters {
     tcr: ReadWrite<u32, TCR::Register>,
     /// LPSPI Transmit Data Register (TDR)
     tdr: ReadWrite<u32, TDR::Register>,
+    _reserved4: [u8; 8],
     /// LPSPI Receive Status Register (RSR)
     rsr: ReadWrite<u32, RSR::Register>,
     /// LPSPI Receive Data Register (RDR)
@@ -820,22 +825,23 @@ impl<'a> LPSPI<'a> {
     /// We're guessing that the time to pop a transmit command from the queue is much faster
     /// than the time taken to pop from the data queue, so the extra queue utilization shouldn't
     /// matter.
-    pub fn exchange(&mut self, buffer: *const u8, len: u8) -> Result<(), LpspiError> {
+    pub fn exchange(&mut self, pcs: u32, buffer: *const u8, len: u8) -> Result<(), LpspiError> {
         if (self.status() | (1 << 24)) == (1 << 24) {
             return Err(LpspiError::Busy);
         }
+        self.registers.tcr.modify(TCR::PCS.val(pcs));
 
         self.clear_fifos();
 
-        let mut transaction = Transaction::new(8 as u16)?;
-        transaction.bit_order = self.bit_order();
+        let mut transaction = Transaction::new(64 as u16)?;
+        // transaction.bit_order = self.bit_order();
         transaction.continuous = true;
 
         let mut tx_idx = 0u8;
         let mut rx_idx = 0u8;
 
         // Continue looping while there is either tx OR rx remaining
-        while tx_idx < len || rx_idx < len {
+        while tx_idx < len {
             if tx_idx < len {
                 let mut word = buffer.wrapping_offset(tx_idx as isize);
 
@@ -843,7 +849,7 @@ impl<'a> LPSPI<'a> {
                 // falling edge comes through:
                 // https://community.nxp.com/t5/i-MX-RT/RT1050-LPSPI-last-bit-not-completing-in-continuous-mode/m-p/898460
                 if tx_idx + 1 == len {
-                    // transaction.continuous = false;
+                    transaction.continuous = false;
                 }
 
                 self.wait_for_transmit_fifo_space()?;
