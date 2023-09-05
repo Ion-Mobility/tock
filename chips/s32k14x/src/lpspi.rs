@@ -601,7 +601,7 @@ impl<'a> LPSPI<'a> {
         // ral::write_reg!(ral::lpspi, spi.lpspi, CR, MEN: MEN_1);
         self.registers
             .fcr
-            .modify(FCR::RXWATER.val(0xF) + FCR::TXWATER.val(0xF));
+            .modify(FCR::RXWATER.val(0x0F) + FCR::TXWATER.val(0xF));
         self.registers.cr.modify(CR::MEN::SET);
     }
 
@@ -833,7 +833,7 @@ impl<'a> LPSPI<'a> {
 
         self.clear_fifos();
 
-        let mut transaction = Transaction::new(64 as u16)?;
+        let mut transaction = Transaction::new(8 as u16)?;
         // transaction.bit_order = self.bit_order();
         transaction.continuous = true;
 
@@ -857,7 +857,7 @@ impl<'a> LPSPI<'a> {
 
                 self.wait_for_transmit_fifo_space()?;
                 self.enqueue_data(unsafe { *word });
-                // transaction.continuing = true;
+                transaction.continuing = true;
                 tx_idx += 1;
             }
 
@@ -869,6 +869,8 @@ impl<'a> LPSPI<'a> {
             //     }
             // }
         }
+
+        self.registers.tcr.modify(TCR::PCS::CLEAR);
 
         Ok(())
     }
@@ -936,43 +938,55 @@ impl<'a> LPSPI<'a> {
     //     Ok(())
     // }
 
-    // /// Let the peripheral act as a DMA source.
-    // ///
-    // /// After this call, the peripheral will signal to the DMA engine whenever
-    // /// it has data available to read.
-    // pub fn enable_dma_receive(&mut self) {
-    //     ral::modify_reg!(ral::lpspi, self.lpspi, FCR, RXWATER: 0); // No watermarks; affects DMA signaling
-    //     ral::modify_reg!(ral::lpspi, self.lpspi, DER, RDDE: 1);
-    // }
+    /// Let the peripheral act as a DMA source.
+    ///
+    /// After this call, the peripheral will signal to the DMA engine whenever
+    /// it has data available to read.
+    pub fn enable_dma_receive(&mut self) {
+        self.registers.fcr.modify(FCR::RXWATER::CLEAR);
+        self.registers.der.modify(DER::RDDE::SET);
+        // ral::modify_reg!(ral::lpspi, self.lpspi, FCR, RXWATER: 0); // No watermarks; affects DMA signaling
+        // ral::modify_reg!(ral::lpspi, self.lpspi, DER, RDDE: 1);
+    }
 
-    // /// Stop the peripheral from acting as a DMA source.
-    // ///
-    // /// See the DMA chapter in the reference manual to understand when this
-    // /// should be called in the DMA transfer lifecycle.
-    // pub fn disable_dma_receive(&mut self) {
-    //     while ral::read_reg!(ral::lpspi, self.lpspi, DER, RDDE == 1) {
-    //         ral::modify_reg!(ral::lpspi, self.lpspi, DER, RDDE: 0);
-    //     }
-    // }
+    /// Stop the peripheral from acting as a DMA source.
+    ///
+    /// See the DMA chapter in the reference manual to understand when this
+    /// should be called in the DMA transfer lifecycle.
+    pub fn disable_dma_receive(&mut self) {
+        while self.registers.der.is_set(DER::RDDE) {
+            self.registers.der.modify(DER::RDDE::CLEAR);
+        }
 
-    // /// Let the peripheral act as a DMA destination.
-    // ///
-    // /// After this call, the peripheral will signal to the DMA engine whenever
-    // /// it has free space in its transfer buffer.
-    // pub fn enable_dma_transmit(&mut self) {
-    //     ral::modify_reg!(ral::lpspi, self.lpspi, FCR, TXWATER: 0); // No watermarks; affects DMA signaling
-    //     ral::modify_reg!(ral::lpspi, self.lpspi, DER, TDDE: 1);
-    // }
+        // while ral::read_reg!(ral::lpspi, self.lpspi, DER, RDDE == 1) {
+        //     ral::modify_reg!(ral::lpspi, self.lpspi, DER, RDDE: 0);
+        // }
+    }
 
-    // /// Stop the peripheral from acting as a DMA destination.
-    // ///
-    // /// See the DMA chapter in the reference manual to understand when this
-    // /// should be called in the DMA transfer lifecycle.
-    // pub fn disable_dma_transmit(&mut self) {
-    //     while ral::read_reg!(ral::lpspi, self.lpspi, DER, TDDE == 1) {
-    //         ral::modify_reg!(ral::lpspi, self.lpspi, DER, TDDE: 0);
-    //     }
-    // }
+    /// Let the peripheral act as a DMA destination.
+    ///
+    /// After this call, the peripheral will signal to the DMA engine whenever
+    /// it has free space in its transfer buffer.
+    pub fn enable_dma_transmit(&mut self) {
+        self.registers.fcr.modify(FCR::TXWATER::CLEAR);
+        self.registers.der.modify(DER::TDDE::SET);
+        // ral::modify_reg!(ral::lpspi, self.lpspi, FCR, TXWATER: 0); // No watermarks; affects DMA signaling
+        // ral::modify_reg!(ral::lpspi, self.lpspi, DER, TDDE: 1);
+    }
+
+    /// Stop the peripheral from acting as a DMA destination.
+    ///
+    /// See the DMA chapter in the reference manual to understand when this
+    /// should be called in the DMA transfer lifecycle.
+    pub fn disable_dma_transmit(&mut self) {
+        while self.registers.der.is_set(DER::TDDE) {
+            self.registers.der.modify(DER::TDDE::CLEAR);
+        }
+
+        // while ral::read_reg!(ral::lpspi, self.lpspi, DER, TDDE == 1) {
+        //     ral::modify_reg!(ral::lpspi, self.lpspi, DER, TDDE: 0);
+        // }
+    }
 
     // /// Produces a pointer to the receiver data register.
     // ///

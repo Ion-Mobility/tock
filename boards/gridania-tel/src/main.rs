@@ -997,8 +997,11 @@ pub unsafe fn main() {
     let mut lpspi2 = LPSPI::new_lpspi2(&pcc);
     lpspi2.init();
     lpspi2.set_spi_clock(8_000_000 as u32, SPI_BAUD_RATE_FREQUENCY);
-    let mut spi_tx_buf: [u8; 8] = [0x12; 8];
-    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 8);
+    let mut spi_tx_buf: [u8; 17] = [
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+        0x10, 0x11,
+    ];
+    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 17);
 
     // LEDs
 
