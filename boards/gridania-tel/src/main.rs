@@ -1001,7 +1001,9 @@ pub unsafe fn main() {
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
         0x10, 0x11,
     ];
-    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 17);
+    let mut spi_rx_buf: [u8; 17] = [0; 17];
+    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 17, spi_rx_buf.as_mut_ptr(), 17);
+    // lpspi2.write_no_read(1, spi_tx_buf.as_ptr(), 17);
 
     // LEDs
 
@@ -1184,7 +1186,11 @@ pub unsafe fn main() {
     _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
     _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
     _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
-    debug!("return value: {} \n", _value);
+    let mut count = 0;
+    while (count < 17) {
+        debug!("Rx SPI data: {}", spi_rx_buf[count]);
+        count = count + 1;
+    }
 
     // while _rx_value == 0 {
     //     _rx_value = CanReceivePacket(0, &MsgID, _rx_buf.as_ptr(), &len);
