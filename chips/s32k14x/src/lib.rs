@@ -9,6 +9,7 @@
 
 pub mod chip;
 pub mod dma;
+pub mod flexcan;
 pub mod gpio;
 pub mod lpit;
 pub mod lpspi;

@@ -825,7 +825,14 @@ impl<'a> LPSPI<'a> {
     /// We're guessing that the time to pop a transmit command from the queue is much faster
     /// than the time taken to pop from the data queue, so the extra queue utilization shouldn't
     /// matter.
-    pub fn exchange(&mut self, pcs: u32, buffer: *const u8, len: u8) -> Result<(), LpspiError> {
+    pub fn exchange(
+        &mut self,
+        pcs: u32,
+        tx_buffer: *const u8,
+        tx_len: u8,
+        rx_buffer: *mut u8,
+        rx_len: u8,
+    ) -> Result<(), LpspiError> {
         if (self.status() | (1 << 24)) == (1 << 24) {
             return Err(LpspiError::Busy);
         }
@@ -836,19 +843,20 @@ impl<'a> LPSPI<'a> {
         let mut transaction = Transaction::new(8 as u16)?;
         // transaction.bit_order = self.bit_order();
         transaction.continuous = true;
+        // transaction.receive_data_mask = true;
 
         let mut tx_idx = 0u8;
         let mut rx_idx = 0u8;
 
         // Continue looping while there is either tx OR rx remaining
-        while tx_idx < len {
-            if tx_idx < len {
-                let mut word = buffer.wrapping_offset(tx_idx as isize);
+        while tx_idx < tx_len || rx_idx < rx_len {
+            if tx_idx < tx_len {
+                let mut word = tx_buffer.wrapping_offset(tx_idx as isize);
 
                 // Turn off TCR CONT on last tx as a workaround so that the final
                 // falling edge comes through:
                 // https://community.nxp.com/t5/i-MX-RT/RT1050-LPSPI-last-bit-not-completing-in-continuous-mode/m-p/898460
-                if tx_idx + 1 == len {
+                if tx_idx + 1 == tx_len {
                     transaction.continuous = false;
                 }
 
@@ -861,13 +869,15 @@ impl<'a> LPSPI<'a> {
                 tx_idx += 1;
             }
 
-            // if rx_idx < len {
-            //     self.recv_ok()?;
-            //     if let Some(word) = self.read_data() {
-            //         buffer.wrapping_offset(rx_idx as isize) = word.try_into().unwrap_or(W::MAX);
-            //         rx_idx += 1;
-            //     }
-            // }
+            if rx_idx < rx_len {
+                self.recv_ok()?;
+                if let Some(word) = self.read_data() {
+                    unsafe {
+                        *(rx_buffer.wrapping_offset(rx_idx as isize)) = word as u8;
+                    }
+                    rx_idx += 1;
+                }
+            }
         }
 
         self.registers.tcr.modify(TCR::PCS::CLEAR);
@@ -896,47 +906,55 @@ impl<'a> LPSPI<'a> {
         );
     }
 
-    // /// Write data to the transmit queue without subsequently reading
-    // /// the receive queue.
-    // ///
-    // /// Use this method when you know that the receiver queue is disabled
-    // /// (RXMASK high in TCR).
-    // ///
-    // /// Similar to `exchange`, this is using continuous transfers for all supported primitives.
-    // fn write_no_read<W>(&mut self, buffer: &[W]) -> Result<(), LpspiError>
-    // where
-    //     W: Word,
-    // {
-    //     if self.status().intersects(Status::BUSY) {
-    //         return Err(LpspiError::Busy);
-    //     } else if buffer.is_empty() {
-    //         return Err(LpspiError::NoData);
-    //     }
+    /// Write data to the transmit queue without subsequently reading
+    /// the receive queue.
+    ///
+    /// Use this method when you know that the receiver queue is disabled
+    /// (RXMASK high in TCR).
+    ///
+    /// Similar to `exchange`, this is using continuous transfers for all supported primitives.
+    pub fn write_no_read(
+        &mut self,
+        pcs: u32,
+        buffer: *const u8,
+        len: u8,
+    ) -> Result<(), LpspiError> {
+        let status = self.status();
 
-    //     self.clear_fifos();
+        if (status >> 24) & 0x01 == 0x01 {
+            return Err(LpspiError::Busy);
+        }
 
-    //     let mut transaction = Transaction::new(8 * core::mem::size_of::<W>() as u16)?;
-    //     transaction.bit_order = self.bit_order();
-    //     transaction.continuous = true;
-    //     transaction.receive_data_mask = true;
+        self.registers.tcr.modify(TCR::PCS.val(pcs));
+        self.clear_fifos();
 
-    //     for word in buffer {
-    //         self.wait_for_transmit_fifo_space()?;
-    //         self.enqueue_transaction(&transaction);
+        let mut transaction = Transaction::new(8 as u16)?;
+        // transaction.bit_order = self.bit_order();
+        transaction.continuous = true;
+        transaction.receive_data_mask = true;
+        let mut tx_idx = 0;
 
-    //         self.wait_for_transmit_fifo_space()?;
-    //         self.enqueue_data((*word).into());
-    //         transaction.continuing = true;
-    //     }
+        while tx_idx < len {
+            let mut word = buffer.wrapping_offset(tx_idx as isize);
+            self.wait_for_transmit_fifo_space()?;
+            self.enqueue_transaction(&transaction);
 
-    //     transaction.continuing = false;
-    //     transaction.continuous = false;
+            self.wait_for_transmit_fifo_space()?;
+            self.enqueue_data((unsafe { *word }));
+            transaction.continuing = true;
+            tx_idx += 1;
+        }
 
-    //     self.wait_for_transmit_fifo_space()?;
-    //     self.enqueue_transaction(&transaction);
+        transaction.continuing = false;
+        transaction.continuous = false;
 
-    //     Ok(())
-    // }
+        self.wait_for_transmit_fifo_space()?;
+        self.enqueue_transaction(&transaction);
+
+        self.registers.tcr.modify(TCR::PCS::CLEAR);
+
+        Ok(())
+    }
 
     /// Let the peripheral act as a DMA source.
     ///
