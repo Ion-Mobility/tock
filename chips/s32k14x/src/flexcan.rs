@@ -1,4 +1,5 @@
 use core::cell::Cell;
+use core::iter::once_with;
 use kernel::utilities::cells::{OptionalCell, TakeCell};
 use kernel::utilities::registers::interfaces::{ReadWriteable, Readable, Writeable};
 use kernel::utilities::registers::{register_bitfields, ReadOnly, ReadWrite};
@@ -11,6 +12,8 @@ use kernel::ErrorCode;
 use nb;
 
 use crate::{dma, pcc};
+
+use self::RAMn::RAM;
 
 /// LP Universal asynchronous receiver transmitter
 #[repr(C)]
@@ -51,72 +54,12 @@ struct FlexcanRegisters {
     rxfir: ReadWrite<u32, RXFIR::Register>,
     /// CAN Bit Timing register (CBT)
     cbt: ReadWrite<u32, CBT::Register>,
-    _reserved4: [u8; 2092],
+    _reserved4: [u8; 44],
+    ramn: [ReadWrite<u32, RAMn::Register>; 128],
+    _reserved5: [u8; 1536],
     /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr0: ReadWrite<u32, RXIMR0::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr1: ReadWrite<u32, RXIMR1::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr2: ReadWrite<u32, RXIMR2::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr3: ReadWrite<u32, RXIMR3::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr4: ReadWrite<u32, RXIMR4::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr5: ReadWrite<u32, RXIMR5::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr6: ReadWrite<u32, RXIMR6::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr7: ReadWrite<u32, RXIMR7::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr8: ReadWrite<u32, RXIMR8::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr9: ReadWrite<u32, RXIMR9::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr10: ReadWrite<u32, RXIMR10::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr11: ReadWrite<u32, RXIMR11::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr12: ReadWrite<u32, RXIMR12::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr13: ReadWrite<u32, RXIMR13::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr14: ReadWrite<u32, RXIMR14::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr15: ReadWrite<u32, RXIMR15::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr16: ReadWrite<u32, RXIMR16::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr17: ReadWrite<u32, RXIMR17::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr18: ReadWrite<u32, RXIMR18::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr19: ReadWrite<u32, RXIMR19::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr20: ReadWrite<u32, RXIMR20::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr21: ReadWrite<u32, RXIMR21::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr22: ReadWrite<u32, RXIMR22::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr23: ReadWrite<u32, RXIMR23::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr24: ReadWrite<u32, RXIMR24::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr25: ReadWrite<u32, RXIMR25::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr26: ReadWrite<u32, RXIMR26::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr27: ReadWrite<u32, RXIMR27::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr28: ReadWrite<u32, RXIMR28::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr29: ReadWrite<u32, RXIMR29::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr30: ReadWrite<u32, RXIMR30::Register>,
-    /// Rx Individual Mask registers (RXIMR0 - RXIMR31)
-    rximr31: ReadWrite<u32, RXIMR31::Register>,
-    _reserved5: [u8; 2296],
+    rximrn: [ReadWrite<u32, RXIMRn::Register>; 32],
+    _reserved6: [u8; 2296],
     // /// Pretended Networking Control 1 register (CTRL1_PN)
     // ctrl1_pn: ReadWrite<u32, CTRL1_PN::Register>,
     // /// Pretended Networking Control 2 register (CTRL2_PN)
@@ -425,163 +368,12 @@ register_bitfields![u32,
         EPSEG2 OFFSET(0) NUMBITS(5) []
     ],
 
-    RXIMR0 [
+    RAMn [
+        RAM OFFSET(0) NUMBITS(32) [],
+    ],
+
+    RXIMRn [
         /// RX FIFO Empty
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR1 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR2 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR3 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR4 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR5 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR6 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR7 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR8 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR9 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR10 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR11 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR12 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR13 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR14 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR15 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR16 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR17 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR18 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR19 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR20 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR21 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR22 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR23 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR24 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR25 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR26 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR27 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR28 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR29 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR30 [
-        /// Transmit Data
-        MI OFFSET(0) NUMBITS(32) []
-    ],
-
-    RXIMR31 [
-        /// Transmit Data
         MI OFFSET(0) NUMBITS(32) []
     ],
 ];
@@ -652,7 +444,151 @@ impl<'a> FLEXCAN<'a> {
     }
 
     pub fn init(&self) {
-        // CanDisabledModeExit
-        self.registers.mcr.is_set(MCR::MDIS);
+        self.can_disabled_mode_exit();
+        self.can_freeze_mode_enter();
+        self.can_disabled_mode_enter();
+
+        self.registers.ctrl1.modify(CTRL1::CLKSRC::CLEAR);
+        self.can_disabled_mode_exit();
+        self.can_freeze_mode_enter();
+
+        // Reset current bit timming configuration
+        self.registers.ctrl1.modify(
+            CTRL1::PRESDIV::CLEAR
+                + CTRL1::PROPSEG::CLEAR
+                + CTRL1::PSEG1::CLEAR
+                + CTRL1::PSEG2::CLEAR
+                + CTRL1::RJW::CLEAR
+                + CTRL1::SMP::CLEAR,
+        );
+
+        self.registers.ctrl1.modify(
+            CTRL1::PRESDIV.val(0x03)
+                + CTRL1::PROPSEG.val(0x07)
+                + CTRL1::PSEG1.val(0x04)
+                + CTRL1::PSEG2.val(0x01)
+                + CTRL1::RJW.val(0x01)
+                + CTRL1::SMP.val(0),
+        );
+
+        // Clear the message box RAM. Each message max cover 4 words (4 x 32bit)
+        for n in 0..128 {
+            self.registers.ramn[n].modify(RAMn::RAM::CLEAR);
+        }
+
+        // Clear the reception mask register for each message box
+        for n in 0..32 {
+            self.registers.rximrn[n].modify(RXIMRn::MI::CLEAR);
+        }
+
+        // Configure the maximum number of message boxes
+        self.registers
+            .mcr
+            .modify(MCR::MAXMB.val(31) + MCR::SRXDIS.val(1) + MCR::IRMQ.val(1) + MCR::RFEN::CLEAR);
+
+        // Configure filter ID for MB
+        for n in 0..32 {
+            if n == 0 {
+                self.registers.rximrn[n].modify(RXIMRn::MI.val(0x4000_0000 | 0x1F00_FFFF));
+                self.registers.ramn[(n * 4) + 0].modify(RAMn::RAM.val(0x0420_0000));
+                // filter ID 0xFFFF extended ID
+                self.registers.ramn[(n * 4) + 1].modify(RAMn::RAM.val(0x0000_FFFF));
+            }
+        }
+
+        // Disable all message box interrupts
+        self.registers.imask1.modify(IMASK1::BU31TO0M::CLEAR);
+        // Clear all message box interrupt flags
+        self.registers.iflag1.set(0xFFFF_FFFF);
+        // Clear all error interrupt flags
+        self.registers.esr1.modify(
+            ESR1::ERRINT::SET
+                + ESR1::BOFFINT::SET
+                + ESR1::RWRNINT::SET
+                + ESR1::TWRNINT::SET
+                + ESR1::BOFFDONEINT::SET
+                + ESR1::ERRINT_FAST::SET
+                + ESR1::ERROVR::SET,
+        );
+        // Switch to normal user mode
+        self.registers.mcr.modify(MCR::SUPV::CLEAR);
+        self.registers
+            .ctrl1
+            .modify(CTRL1::LOM::CLEAR + CTRL1::LPB::CLEAR);
+
+        self.can_freeze_mode_exit();
+        while self.registers.mcr.is_set(MCR::NOTRDY) {}
+    }
+
+    pub fn can_transmit(&self, mb: usize, mut mes_id: u32, tx_buffer: *const u8, tx_len: u8) {
+        let mut is_ext_id: u8 = 0;
+        if (mes_id & 0x8000_0000) != 0 {
+            mes_id = mes_id & !0x8000_0000;
+            is_ext_id = 1;
+        }
+
+        self.registers.iflag1.set(1 << mb);
+
+        let mut ram_value = self.registers.ramn[(mb * 4) + 0].get();
+        self.registers.ramn[(mb * 4) + 0].set(
+            (ram_value & (!0xE0000000 & !(0x200000 | 0x100000) & !0xF0000))
+                | (0x400000 | (((tx_len as u32) << 16) & 0xF0000)),
+        );
+
+        let mut ram2: u32 = 0;
+        let mut ram3: u32 = 0;
+
+        for n in 0..4 as usize {
+            // 0 1 2 3 -> 3 2 1 0 -> mb 2
+            // 4 5 6 7 -> 7 6 5 4 -> mb 3
+            let mut word = tx_buffer.wrapping_offset(n as isize);
+            // self.registers.ramn[(mb * 4) + 1 + (n / 4)].set(unsafe { *tx_buffer } as u32);
+            ram2 = ram2 | ((unsafe { *word } as u32) << (8 * (3 - n)));
+        }
+
+        for n in 4..8 as usize {
+            // 0 1 2 3 -> 3 2 1 0 -> mb 2
+            // 4 5 6 7 -> 7 6 5 4 -> mb 3
+            let mut word = tx_buffer.wrapping_offset(n as isize);
+            // self.registers.ramn[(mb * 4) + 1 + (n / 4)].set(unsafe { *tx_buffer } as u32);
+            ram3 = ram3 | ((unsafe { *word } as u32) << (8 * (7 - n)));
+        }
+        self.registers.ramn[(mb * 4) + 2].set(ram2);
+        self.registers.ramn[(mb * 4) + 3].set(ram3);
+
+        if is_ext_id == 0 {
+        } else {
+            ram_value = self.registers.ramn[(mb * 4) + 0].get();
+            self.registers.ramn[(mb * 4) + 0].set(ram_value | 0x20_0000);
+            self.registers.ramn[(mb * 4) + 1].set(mes_id & 0x1FFF_FFFF);
+        }
+
+        ram_value = self.registers.ramn[(mb * 4) + 0].get();
+        self.registers.ramn[(mb * 4) + 0].set(ram_value | (0x0C << 24) & 0x0F00_0000);
+    }
+
+    fn can_disabled_mode_exit(&self) {
+        if self.registers.mcr.is_set(MCR::MDIS) {
+            self.registers.mcr.modify(MCR::MDIS::CLEAR);
+            while self.registers.mcr.is_set(MCR::LPMACK) {}
+        }
+    }
+
+    fn can_freeze_mode_enter(&self) {
+        self.registers.mcr.modify(MCR::FRZ::SET + MCR::HALT::SET);
+        while self.registers.mcr.is_set(MCR::MDIS) {}
+    }
+
+    fn can_freeze_mode_exit(&self) {
+        self.registers.mcr.modify(MCR::FRZ::CLEAR);
+        self.registers.mcr.modify(MCR::HALT::CLEAR);
+        while self.registers.mcr.is_set(MCR::FRZACK) {}
+    }
+
+    fn can_disabled_mode_enter(&self) {
+        if !self.registers.mcr.is_set(MCR::MDIS) {
+            self.registers.mcr.modify(MCR::MDIS::SET);
+            while !self.registers.mcr.is_set(MCR::LPMACK) {}
+        }
     }
 }

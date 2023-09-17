@@ -16,6 +16,7 @@ use kernel::platform::{KernelResources, SyscallDriverLookup};
 use kernel::scheduler::round_robin::RoundRobinSched;
 use kernel::{create_capability, static_init};
 use s32k14x as gridaniatel;
+use s32k14x::flexcan::FLEXCAN;
 use s32k14x::lpspi::LPSPI;
 
 // Unit Tests for drivers.
@@ -992,18 +993,26 @@ pub unsafe fn main() {
         .finalize(components::debug_writer_component_static!());
 
     // Setup SPI2
-    const SPI_BAUD_RATE_FREQUENCY: u32 = 1_000_000;
+    // const SPI_BAUD_RATE_FREQUENCY: u32 = 1_000_000;
     let pcc = crate::gridaniatel::pcc::Pcc::new();
-    let mut lpspi2 = LPSPI::new_lpspi2(&pcc);
-    lpspi2.init();
-    lpspi2.set_spi_clock(8_000_000 as u32, SPI_BAUD_RATE_FREQUENCY);
-    let mut spi_tx_buf: [u8; 17] = [
-        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-        0x10, 0x11,
-    ];
-    let mut spi_rx_buf: [u8; 17] = [0; 17];
-    lpspi2.exchange(1, spi_tx_buf.as_ptr(), 17, spi_rx_buf.as_mut_ptr(), 17);
-    // lpspi2.write_no_read(1, spi_tx_buf.as_ptr(), 17);
+    // let mut lpspi2 = LPSPI::new_lpspi2(&pcc);
+    // lpspi2.init();
+    // lpspi2.set_spi_clock(8_000_000 as u32, SPI_BAUD_RATE_FREQUENCY);
+    // let mut spi_tx_buf: [u8; 17] = [
+    //     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+    //     0x10, 0x11,
+    // ];
+    // let mut spi_rx_buf: [u8; 17] = [0; 17];
+    // lpspi2.exchange(1, spi_tx_buf.as_ptr(), 17, spi_rx_buf.as_mut_ptr(), 17);
+    // // lpspi2.write_no_read(1, spi_tx_buf.as_ptr(), 17);
+
+    //setup flex CAN
+    let mut flexcan2 = FLEXCAN::new_flexcan2(&pcc);
+    flexcan2.init();
+    let mut can_tx_buf: [u8; 8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
+    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
+    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
 
     // LEDs
 
@@ -1175,22 +1184,17 @@ pub unsafe fn main() {
     debug!("Tock OS initialization complete. Entering main loop");
 
     debug!("Init CAN\n");
-    CanInit();
-    debug!("Transmit CAN packet:\n");
-    let mut _tx_buf: [u8; 8] = [0x12; 8];
-    let mut _rx_buf: [u8; 8] = [0x12; 8];
-    let mut _value: u8 = 0;
-    let mut _rx_value: u8 = 0;
-    let MsgID: u32 = 0;
-    let len: u8 = 0;
-    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
-    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
-    _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
-    let mut count = 0;
-    while (count < 17) {
-        debug!("Rx SPI data: {}", spi_rx_buf[count]);
-        count = count + 1;
-    }
+    // CanInit();
+    // debug!("Transmit CAN packet:\n");
+    // let mut _tx_buf: [u8; 8] = [0x12; 8];
+    // let mut _rx_buf: [u8; 8] = [0x12; 8];
+    // let mut _value: u8 = 0;
+    // let mut _rx_value: u8 = 0;
+    // let MsgID: u32 = 0;
+    // let len: u8 = 0;
+    // _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
+    // _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
+    // _value = CanTransmitPacket(8, 0x80001234, _tx_buf.as_ptr(), 8);
 
     // while _rx_value == 0 {
     //     _rx_value = CanReceivePacket(0, &MsgID, _rx_buf.as_ptr(), &len);
