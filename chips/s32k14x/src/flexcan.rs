@@ -195,7 +195,7 @@ register_bitfields![u32,
         /// Receive FIFO Size
         LOM OFFSET(3) NUMBITS(1) [],
         /// Transmit FIFO Size
-        PROPSEG OFFSET(0) NUMBITS(2) []
+        PROPSEG OFFSET(0) NUMBITS(3) []
     ],
 
     TIMER [
