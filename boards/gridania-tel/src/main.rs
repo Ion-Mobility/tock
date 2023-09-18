@@ -1011,8 +1011,7 @@ pub unsafe fn main() {
     flexcan2.init();
     let mut can_tx_buf: [u8; 8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
     flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
-    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
-    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
+    flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 5);
 
     // LEDs
 
