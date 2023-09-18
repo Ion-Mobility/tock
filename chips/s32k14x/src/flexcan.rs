@@ -538,21 +538,15 @@ impl<'a> FLEXCAN<'a> {
         let mut ram2: u32 = 0;
         let mut ram3: u32 = 0;
 
-        for n in 0..4 as usize {
-            // 0 1 2 3 -> 3 2 1 0 -> mb 2
-            // 4 5 6 7 -> 7 6 5 4 -> mb 3
+        for n in 0..tx_len as usize {
             let mut word = tx_buffer.wrapping_offset(n as isize);
-            // self.registers.ramn[(mb * 4) + 1 + (n / 4)].set(unsafe { *tx_buffer } as u32);
-            ram2 = ram2 | ((unsafe { *word } as u32) << (8 * (3 - n)));
+            if n < 4 {
+                ram2 = ram2 | ((unsafe { *word } as u32) << (8 * (3 - n)));
+            } else {
+                ram3 = ram3 | ((unsafe { *word } as u32) << (8 * (7 - n)));
+            }
         }
 
-        for n in 4..8 as usize {
-            // 0 1 2 3 -> 3 2 1 0 -> mb 2
-            // 4 5 6 7 -> 7 6 5 4 -> mb 3
-            let mut word = tx_buffer.wrapping_offset(n as isize);
-            // self.registers.ramn[(mb * 4) + 1 + (n / 4)].set(unsafe { *tx_buffer } as u32);
-            ram3 = ram3 | ((unsafe { *word } as u32) << (8 * (7 - n)));
-        }
         self.registers.ramn[(mb * 4) + 2].set(ram2);
         self.registers.ramn[(mb * 4) + 3].set(ram3);
 
