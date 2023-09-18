@@ -1013,6 +1013,11 @@ pub unsafe fn main() {
     flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 8);
     flexcan2.can_transmit(1, 0x8000_FFFF, can_tx_buf.as_ptr(), 5);
 
+    let mut mesid: u32 = 0;
+    let mut rx_len: u8 = 0;
+    let mut rx_buf: [u8; 8] = [0; 8];
+    while flexcan2.can_receive(0, &mut mesid, &mut rx_buf[0], &mut rx_len) != 1 {}
+
     // LEDs
 
     // Clock to Port A is enabled in `set_pin_primary_functions()
@@ -1199,6 +1204,11 @@ pub unsafe fn main() {
     //     _rx_value = CanReceivePacket(0, &MsgID, _rx_buf.as_ptr(), &len);
     //     debug!("rx value: {:?} \n", _rx_buf);
     // }
+    debug!("rx length {}", rx_len);
+    debug!("rx id {}", mesid);
+    for n in 0..8 {
+        debug!("CAN rx buffer {}: {:?}", n, rx_buf[n]);
+    }
 
     extern "C" {
         /// Beginning of the ROM region containing app images.

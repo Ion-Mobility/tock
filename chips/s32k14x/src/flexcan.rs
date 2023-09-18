@@ -561,6 +561,39 @@ impl<'a> FLEXCAN<'a> {
         self.registers.ramn[(mb * 4) + 0].set(ram_value | (0x0C << 24) & 0x0F00_0000);
     }
 
+    pub fn can_receive(
+        &self,
+        mb: usize,
+        mes_id: *mut u32,
+        rx_buffer: *mut u8,
+        rx_len: *mut u8,
+    ) -> u8 {
+        let mut result = 0;
+        if (self.registers.iflag1.get() & (1 << mb)) != 0 {
+            unsafe {
+                *rx_len = ((self.registers.ramn[mb * 4].get() & 0x000F_0000) >> 16) as u8;
+                *mes_id = self.registers.ramn[mb * 4 + 1].get() & 0x1FFF_FFFF;
+
+                for n in 0..*rx_len {
+                    let mut rx: u8 = 0;
+                    if n < 4 {
+                        rx = ((self.registers.ramn[mb * 4 + 2].get() >> (3 - n) * 8) & 0xFF) as u8;
+                    } else {
+                        rx = ((self.registers.ramn[mb * 4 + 3].get() >> (7 - n) * 8) & 0xFF) as u8;
+                    }
+                    *rx_buffer.offset(n as isize) = rx;
+                }
+            }
+
+            // Clear the mailbox interrupt flag
+            self.registers.iflag1.set(1 << mb);
+            // dummy read free running timer to unclock the mailbox
+            self.registers.timer.get();
+            result = 1;
+        }
+        result
+    }
+
     fn can_disabled_mode_exit(&self) {
         if self.registers.mcr.is_set(MCR::MDIS) {
             self.registers.mcr.modify(MCR::MDIS::CLEAR);
