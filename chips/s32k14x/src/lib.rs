@@ -2,14 +2,17 @@
 //!
 //! S32K14x chip: <https://www.nxp.com/docs/en/data-sheet/S32K-DS.pdf>
 
+#![allow(warnings)]
 #![crate_name = "s32k14x"]
 #![crate_type = "rlib"]
 #![no_std]
 
 pub mod chip;
 pub mod dma;
+pub mod flexcan;
 pub mod gpio;
 pub mod lpit;
+pub mod lpspi;
 pub mod lpuart;
 pub mod nvic;
 pub mod pcc;
